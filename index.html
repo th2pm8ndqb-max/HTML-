@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7,12 +9,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script type="module">
-        // استيراد أدوات Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } 
         from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // إعدادات المشروع الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lhjm_eRg8SX_iUw",
             authDomain: "athar-pro.firebaseapp.com",
@@ -25,13 +25,12 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // وظيفة حفظ البيانات في السحابة
-        window.saveToCloud = async function() {
-            const amt = document.getElementById('amt').value;
-            const cat = document.getElementById('cat').value;
-            const nec = document.getElementById('nec').value;
+        window.saveData = async function(isNecessary) {
+            const amt = document.getElementById('amount').value;
+            const cat = document.getElementById('category').value;
+            const nec = isNecessary ? 'yes' : 'no';
             
-            if(!amt) return alert("فضلاً أدخل المبلغ");
+            if(!amt) return alert("أدخل المبلغ أولاً");
 
             try {
                 await addDoc(collection(db, "expenses"), {
@@ -40,139 +39,122 @@
                     necessity: nec,
                     timestamp: new Date()
                 });
-                document.getElementById('amt').value = ''; // تصفير الخانة بعد الحفظ
-                console.log("تم الحفظ في السحابة!");
-            } catch (e) {
-                console.error("خطأ في الاتصال بالسحابة: ", e);
-            }
+                document.getElementById('amount').value = '';
+            } catch (e) { console.error(e); }
         };
 
-        // تحديث البيانات لحظياً من السحابة
-        const q = query(collection(db, "expenses"), orderBy("timestamp", "asc"), limit(15));
+        const q = query(collection(db, "expenses"), orderBy("timestamp", "asc"), limit(20));
         onSnapshot(q, (snapshot) => {
             let amounts = [];
             let labels = [];
             let score = 100;
-
             snapshot.forEach((doc) => {
-                const data = doc.data();
-                amounts.push(data.amount);
-                labels.push(new Date(data.timestamp.seconds * 1000).toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'}));
-                // معادلة النقاط: الضروري يزيد 5، الكماليات تنقص 10
-                score += (data.necessity === 'yes' ? 5 : -10);
+                const d = doc.data();
+                amounts.push(d.amount);
+                labels.push(""); 
+                score += (d.necessity === 'yes' ? 5 : -10);
             });
-
-            document.getElementById('liveScore').innerText = score;
-            renderChart(amounts, labels);
+            document.getElementById('score').innerText = score;
+            updateChart(amounts, labels);
         });
 
-        let myChart;
-        function renderChart(data, labels) {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
+        let chart;
+        function updateChart(data, labels) {
+            const ctx = document.getElementById('chart').getContext('2d');
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'تحليل الإنفاق',
                         data: data,
-                        borderColor: '#27ae60',
-                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
+                        borderColor: '#fff',
+                        backgroundColor: 'rgba(255,255,255,0.2)',
                         fill: true,
                         tension: 0.4
                     }]
                 },
-                options: { scales: { y: { beginAtZero: true } } }
+                options: { 
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false }, x: { display: false } }
+                }
             });
         }
     </script>
 
     <style>
+        /* التصميم المطابق تماماً لـ Athar-app */
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f7f6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Cairo', sans-serif;
+            color: white;
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
         }
-        .app-card {
-            background: white;
-            width: 350px;
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             padding: 30px;
-            border-radius: 35px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            border-radius: 30px;
+            width: 340px;
             text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        h1 { color: #27ae60; font-size: 28px; margin-bottom: 5px; }
-        .tagline { color: #95a5a6; font-size: 13px; margin-bottom: 25px; }
-        
-        .score-display {
-            background: #fdfdfd;
-            padding: 15px;
-            border-radius: 20px;
-            border: 1px solid #f0f0f0;
-            margin-bottom: 20px;
-        }
-        .score-display span { font-size: 12px; color: #7f8c8d; }
-        .score-display strong { display: block; font-size: 40px; color: #2c3e50; }
-
+        h1 { margin: 0; font-size: 32px; }
+        .score-val { font-size: 48px; font-weight: bold; margin: 10px 0; }
         input, select {
             width: 100%;
             padding: 12px;
             margin: 8px 0;
             border-radius: 12px;
-            border: 1px solid #eee;
-            background: #f9f9f9;
-            font-size: 15px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            font-size: 16px;
             box-sizing: border-box;
         }
-        .btn-save {
-            width: 100%;
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn {
+            flex: 1;
             padding: 15px;
-            background: #27ae60;
-            color: white;
             border: none;
-            border-radius: 15px;
-            font-size: 17px;
+            border-radius: 12px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 10px;
+            color: white;
             transition: 0.2s;
         }
-        .btn-save:active { transform: scale(0.98); }
-        canvas { margin-top: 25px; }
+        .btn-green { background: #27ae60; }
+        .btn-red { background: #e74c3c; }
+        .btn:active { transform: scale(0.95); }
+        canvas { margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="app-card">
+<div class="card">
     <h1>أثر 🌱</h1>
-    <p class="tagline">تطبيق الإنفاق السحابي المستدام</p>
+    <p>نقاط الاستدامة</p>
+    <div class="score-val" id="score">100</div>
 
-    <div class="score-display">
-        <span>نقاط الأثر اللحظية</span>
-        <strong id="liveScore">100</strong>
+    <input type="number" id="amount" placeholder="المبلغ..">
+    <select id="category">
+        <option value="قهوة">☕ قهوة</option>
+        <option value="طعام">🍎 طعام</option>
+        <option value="دراسة">📚 دراسة</option>
+    </select>
+
+    <div class="btn-group">
+        <button class="btn btn-green" onclick="saveData(true)">ضروري ✅</button>
+        <button class="btn btn-red" onclick="saveData(false)">كماليات ❌</button>
     </div>
 
-    <input type="number" id="amt" placeholder="المبلغ (ريال)">
-    
-    <select id="cat">
-        <option value="food">🍽️ طعام</option>
-        <option value="coffee">☕ قهوة</option>
-        <option value="study">📚 دراسة</option>
-        <option value="fun">🎮 ترفيه</option>
-    </select>
-
-    <select id="nec">
-        <option value="yes">ضروري ✅</option>
-        <option value="no">كماليات ❌</option>
-    </select>
-
-    <button class="btn-save" onclick="saveToCloud()">حفظ في السحابة</button>
-
-    <canvas id="myChart" height="150"></canvas>
+    <canvas id="chart" height="100"></canvas>
 </div>
 
+</body>
+</html>
