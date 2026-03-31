@@ -1,0 +1,192 @@
+‏<!DOCTYPE html>
+‏<html lang="ar">
+‏<head>
+‏<meta charset="UTF-8">
+‏<title>أثر PRO</title>
+
+‏<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+‏<style>
+‏body {
+‏    font-family: Arial;
+‏    background: linear-gradient(#2ECC71, #3498DB);
+‏    direction: rtl;
+‏    margin: 0;
+}
+
+‏.app {
+‏    max-width: 360px;
+‏    margin: 20px auto;
+‏    background: white;
+‏    border-radius: 20px;
+‏    padding: 15px;
+}
+
+‏h1 {
+‏    text-align: center;
+‏    color: #2ECC71;
+}
+
+‏input, select {
+‏    width: 100%;
+‏    padding: 10px;
+‏    margin: 5px 0;
+‏    border-radius: 10px;
+‏    border: 1px solid #ddd;
+}
+
+‏button {
+‏    width: 100%;
+‏    padding: 12px;
+‏    background: #2ECC71;
+‏    color: white;
+‏    border: none;
+‏    border-radius: 10px;
+‏    margin-top: 5px;
+}
+
+‏.result {
+‏    padding: 10px;
+‏    margin-top: 10px;
+‏    border-radius: 10px;
+‏    color: white;
+‏    text-align: center;
+}
+
+‏.green {background: #2ECC71;}
+‏.red {background: #E74C3C;}
+‏.yellow {background: #F1C40F; color:black;}
+
+‏.card {
+‏    background: #ecf0f1;
+‏    padding: 10px;
+‏    margin-top: 10px;
+‏    border-radius: 10px;
+}
+
+‏</style>
+‏</head>
+
+‏<body>
+
+‏<div class="app">
+
+‏<h1>أثر PRO 🌱</h1>
+
+‏<input type="number" id="amount" placeholder="كم صرفت؟">
+
+‏<select id="type">
+‏<option>غذاء</option>
+‏<option>مواصلات</option>
+‏<option>كماليات</option>
+‏<option>تعليم</option>
+‏</select>
+
+‏<select id="need">
+‏<option value="needed">ضروري</option>
+‏<option value="not">غير ضروري</option>
+‏</select>
+
+‏<button onclick="analyze()">تحليل الأثر</button>
+
+‏<div id="result"></div>
+
+‏<div class="card" id="score">⭐ نقاطك: 0</div>
+‏<div class="card" id="personality">👤 شخصيتك: —</div>
+‏<div class="card" id="challenge">🎯 التحدي: قلل الكماليات اليوم</div>
+
+‏<canvas id="chart"></canvas>
+
+‏<div class="card">
+‏<b>📊 السجل:</b>
+‏<ul id="history"></ul>
+‏</div>
+
+‏</div>
+
+‏<script>
+
+‏let score = localStorage.getItem("score") || 0;
+‏let bad = localStorage.getItem("bad") || 0;
+‏let data = JSON.parse(localStorage.getItem("data")) || [];
+
+‏document.getElementById("score").innerHTML = "⭐ نقاطك: " + score;
+
+‏function analyze() {
+‏    let amount = document.getElementById("amount").value;
+‏    let need = document.getElementById("need").value;
+
+‏    let result = document.getElementById("result");
+
+‏    if(amount == "") {
+‏        result.innerHTML = "⚠️ أدخل المبلغ";
+‏        result.className = "result red";
+‏        return;
+    }
+
+‏    amount = parseInt(amount);
+
+‏    let color = "";
+‏    let text = "";
+
+‏    if(need == "needed" && amount < 50) {
+‏        text = "🟢 ممتاز";
+‏        color = "green";
+‏        score = parseInt(score) + 10;
+‏    } else if(need == "not") {
+‏        text = "🔴 غير ضروري";
+‏        color = "red";
+‏        score -= 5;
+‏        bad++;
+‏    } else {
+‏        text = "🟡 متوسط";
+‏        color = "yellow";
+‏        score += 2;
+    }
+
+‏    result.innerHTML = text;
+‏    result.className = "result " + color;
+
+    // حفظ البيانات
+‏    data.push(amount);
+‏    localStorage.setItem("data", JSON.stringify(data));
+‏    localStorage.setItem("score", score);
+‏    localStorage.setItem("bad", bad);
+
+‏    document.getElementById("score").innerHTML = "⭐ نقاطك: " + score;
+
+    // الشخصية
+‏    let personality = "متوازن";
+‏    if(bad > 3) personality = "مسرف";
+‏    if(score > 30) personality = "اقتصادي";
+
+‏    document.getElementById("personality").innerHTML = "👤 شخصيتك: " + personality;
+
+    // سجل
+‏    let li = document.createElement("li");
+‏    li.innerText = amount + " ريال - " + text;
+‏    document.getElementById("history").appendChild(li);
+
+‏    updateChart();
+}
+
+‏function updateChart() {
+‏    let ctx = document.getElementById('chart').getContext('2d');
+‏    new Chart(ctx, {
+‏        type: 'line',
+‏        data: {
+‏            labels: data.map((_, i) => i+1),
+‏            datasets: [{
+‏                label: 'المصروف',
+‏                data: data
+            }]
+        }
+    });
+}
+
+‏updateChart();
+
+‏</script>
+
+‏</body>
+‏</html>
