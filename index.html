@@ -1,127 +1,125 @@
 
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر PRO | لوحة التحكم السحابية</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } 
-        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // إعدادات Firebase الخاصة بك
-        const firebaseConfig = {
-            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lhjm_eRg8SX_iUw",
-            authDomain: "athar-pro.firebaseapp.com",
-            projectId: "athar-pro",
-            storageBucket: "athar-pro.firebasestorage.app",
-            messagingSenderId: "958994453336",
-            appId: "1:958994453336:web:d4488297a848930285cb2d",
-            measurementId: "G-R9JJB10JRK"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.processEntry = async function() {
-            const amt = document.getElementById('amt').value;
-            const cat = document.getElementById('cat').value;
-            const nec = document.getElementById('nec').value;
-            if(!amt) return alert("أدخل المبلغ");
-            try {
-                await addDoc(collection(db, "expenses"), {
-                    amount: parseFloat(amt),
-                    category: cat,
-                    necessity: nec,
-                    timestamp: new Date()
-                });
-                document.getElementById('amt').value = '';
-            } catch (e) { console.error(e); }
-        };
-
-        const q = query(collection(db, "expenses"), orderBy("timestamp", "asc"), limit(10));
-        onSnapshot(q, (snapshot) => {
-            let amounts = [];
-            let labels = [];
-            let total = 0;
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                amounts.push(data.amount);
-                labels.push(new Date(data.timestamp.seconds * 1000).toLocaleTimeString('ar-SA'));
-                total += (data.necessity === 'yes' ? 10 : -5);
-            });
-            document.getElementById('pts').innerText = total + 100;
-            updateChart(amounts, labels);
-        });
-
-        let myChart;
-        function updateChart(data, labels) {
-            const ctx = document.getElementById('chart').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'الإنفاق السحابي',
-                        data: data,
-                        borderColor: '#27ae60',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                }
-            });
-        }
-    </script>
+    <title>أثر PRO | النموذج الأولي (Prototype)</title>
     <style>
-        :root { --primary: #27ae60; --secondary: #2980b9; --bg: #f0f3f5; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; }
-        .dashboard { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .panel { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
-        .full-width { grid-column: 1 / -1; text-align: center; }
-        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; }
-        button { background: var(--primary); color: white; border: none; font-weight: bold; cursor: pointer; }
-        .stat-card { background: #f8f9fa; padding: 15px; border-radius: 15px; text-align: center; margin: 5px; flex: 1; }
-        .stat-val { display: block; font-size: 22px; font-weight: bold; color: var(--secondary); }
-        #ai-advice { background: #e8f5e9; border-right: 5px solid var(--primary); padding: 15px; border-radius: 10px; margin-top: 10px; font-size: 14px; }
-        @media (max-width: 600px) { .dashboard { grid-template-columns: 1fr; } }
+        /* فلسفة التصميم: بسيطة، مريحة للعين، وعصرية */
+        body {
+            background-color: #dcdde1; /* رمادي هادئ */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .phone-mockup {
+            width: 320px;
+            height: 600px;
+            background: #f5f6fa;
+            border-radius: 40px;
+            border: 8px solid #2f3640;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 { color: #27ae60; font-size: 24px; margin: 0; }
+        .header p { font-size: 12px; color: #7f8c8d; }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .points { font-size: 32px; font-weight: bold; color: #2980b9; }
+
+        .input-group {
+            background: #eee;
+            padding: 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .dummy-input {
+            background: white;
+            height: 40px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding-right: 10px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .btn-prototype {
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .chart-placeholder {
+            margin-top: 30px;
+            height: 100px;
+            background: linear-gradient(90deg, transparent 50%, rgba(39,174,96,0.1) 50%);
+            background-size: 20px 100%;
+            border-bottom: 2px solid #27ae60;
+            position: relative;
+        }
+        
+        .chart-line {
+            position: absolute;
+            top: 40px; width: 100%; height: 2px;
+            background: #27ae60;
+            transform: rotate(-5deg);
+        }
     </style>
 </head>
 <body>
-<div class="dashboard">
-    <div class="panel full-width">
-        <h1 style="margin:0;">أثر PRO 🌱</h1>
-        <p style="color: #666;">لوحة التحكم المتصلة سحابياً بـ Google Firestore</p>
+
+<div class="phone-mockup">
+    <div class="header">
+        <h1>أثر PRO 🌱</h1>
+        <p>التخطيط الأولي للواجهة</p>
     </div>
-    <div class="panel">
-        <h2>تسجيل عملية 💳</h2>
-        <input type="number" id="amt" placeholder="المبلغ (ريال)">
-        <select id="cat">
-            <option value="food">غذاء</option>
-            <option value="coffee">قهوة (V60)</option>
-            <option value="edu">تعليم</option>
-        </select>
-        <select id="nec">
-            <option value="yes">ضروري جداً</option>
-            <option value="no">كماليات</option>
-        </select>
-        <button onclick="processEntry()">حفظ وتحليل الأثر</button>
+
+    <div class="stat-card">
+        <span style="font-size: 14px; color: #666;">نقاطك الحالية</span>
+        <div class="points">100</div>
+        <div style="color: #27ae60; font-size: 12px;">مستدام ✅</div>
     </div>
-    <div class="panel">
-        <h2>الإحصائيات السحابية 📊</h2>
-        <div style="display:flex;">
-            <div class="stat-card"><span>نقاطك</span><span class="stat-val" id="pts">100</span></div>
-            <div class="stat-card"><span>الحالة</span><span class="stat-val" id="lvl" style="font-size:14px;">متوازن</span></div>
-        </div>
-        <div id="ai-advice"><b>💡 نصيحة أثر:</b> استمر في تسجيل بياناتك لتحسين دقة التحليل السحابي.</div>
+
+    <div class="input-group">
+        <div class="dummy-input">المبلغ...</div>
+        <div class="dummy-input">التصنيف (غذاء، قهوة...)</div>
+        <div class="dummy-input">هل هو ضروري؟</div>
+        <div class="btn-prototype">حفظ الأثر</div>
     </div>
-    <div class="panel full-width">
-        <h2>تحليل نمط الإنفاق المستدام 📈</h2>
-        <canvas id="chart" height="100"></canvas>
+
+    <div class="chart-placeholder">
+        <div class="chart-line"></div>
+        <p style="font-size: 10px; text-align: center; margin-top: 80px; color: #7f8c8d;">نموذج تجريبي للرسم البياني</p>
     </div>
 </div>
+
 </body>
 </html>
