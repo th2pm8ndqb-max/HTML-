@@ -1,284 +1,225 @@
 
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر PRO 🌱</title>
+    <title>أثر PRO | نظام الإدارة المالية المستدامة</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary: #2ecc71;
-            --secondary: #3498db;
-            --danger: #e74c3c;
-            --warning: #f1c40f;
-            --bg: #f4f7f6;
+            --nature-green: #27ae60;
+            --ocean-blue: #2980b9;
+            --soft-white: #ffffff;
+            --dark-text: #2c3e50;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: 'Segoe UI', sans-serif;
+            background: #f0f3f5;
             margin: 0;
-            padding: 10px;
+            padding: 20px;
+            color: var(--dark-text);
         }
 
-        .app-container {
-            background: rgba(255, 255, 255, 0.95);
-            width: 100%;
-            max-width: 450px;
-            border-radius: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            padding: 25px;
-            backdrop-filter: blur(10px);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #eee;
-            border-radius: 12px;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            outline: none;
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
-        }
-
-        button:active {
-            transform: scale(0.98);
-        }
-
-        .status-cards {
+        .dashboard {
+            max-width: 800px;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 20px;
         }
 
-        .card {
-            background: #f8f9fa;
+        .panel {
+            background: var(--soft-white);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        }
+
+        .full-width { grid-column: 1 / -1; }
+
+        h2 { color: var(--nature-green); margin-top: 0; font-size: 1.2rem; }
+
+        input, select, button {
+            width: 100%;
             padding: 12px;
-            border-radius: 15px;
-            text-align: center;
-            border-right: 4px solid var(--primary);
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 1px solid #ddd;
             font-size: 14px;
         }
 
-        #result-display {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
+        button {
+            background: var(--nature-green);
+            color: white;
+            border: none;
             font-weight: bold;
-            display: none;
+            cursor: pointer;
+            transition: 0.3s;
         }
 
-        .history-box {
-            margin-top: 20px;
-            max-height: 150px;
-            overflow-y: auto;
-            background: #fff;
-            border-radius: 12px;
-            padding: 10px;
-            border: 1px solid #eee;
+        button:hover { background: #219150; transform: translateY(-2px); }
+
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        .stat-val { display: block; font-size: 20px; font-weight: bold; color: var(--ocean-blue); }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #e1f5fe;
+            color: #0288d1;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 5px;
         }
 
-        li {
-            padding: 8px;
-            border-bottom: 1px solid #f1f1f1;
-            font-size: 13px;
-            display: flex;
-            justify-content: space-between;
+        #ai-advice {
+            background: #e8f5e9;
+            border-left: 5px solid var(--nature-green);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 15px;
         }
 
-        canvas {
-            margin-top: 20px;
-            background: white;
-            border-radius: 12px;
-        }
+        @media (max-width: 600px) { .dashboard { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <h1>أثر PRO 🌱</h1>
-
-    <div class="input-group">
-        <label>المبلغ الصادر</label>
-        <input type="number" id="amount" placeholder="ريال سعودي">
+<div class="dashboard">
+    <div class="panel full-width" style="text-align: center;">
+        <h1 style="margin:0;">أثر PRO 🌱</h1>
+        <p style="color: #666;">نظام ذكي لتحليل الاستدامة المالية والبيئية</p>
     </div>
 
-    <div class="input-group">
-        <label>نوع المصروف</label>
-        <select id="type">
-            <option>غذاء</option>
-            <option>مواصلات</option>
-            <option>كماليات</option>
-            <option>تعليم</option>
+    <div class="panel">
+        <h2>تسجيل عملية 💳</h2>
+        <input type="number" id="amount" placeholder="المبلغ (ريال)">
+        <select id="category">
+            <option value="food">غذاء (أثر بيئي عالي)</option>
+            <option value="transport">مواصلات (بصمة كربونية)</option>
+            <option value="shop">كماليات (أثر اجتماعي)</option>
+            <option value="edu">تعليم (استثمار بشري)</option>
         </select>
-    </div>
-
-    <div class="input-group">
-        <label>مدى الاحتياج</label>
-        <select id="need">
-            <option value="needed">ضروري جداً</option>
-            <option value="not">رغبة/كماليات</option>
+        <select id="necessity">
+            <option value="essential">ضروري</option>
+            <option value="luxury">رفاهية</option>
         </select>
+        <button onclick="processTransaction()">تحليل الذكاء المالي</button>
     </div>
 
-    <button onclick="analyze()">تحليل الأثر الآن</button>
-
-    <div id="result-display"></div>
-
-    <div class="status-cards">
-        <div class="card">⭐ النقاط: <span id="score-val">0</span></div>
-        <div class="card">👤 الشخصية: <span id="pers-val">بانتظارك</span></div>
+    <div class="panel">
+        <h2>الحالة الراهنة 📊</h2>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <span class="stat-val" id="total-score">0</span>
+                <span>نقاط الاستدامة</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-val" id="eco-impact">0%</span>
+                <span>البصمة الخضراء</span>
+            </div>
+        </div>
+        <div id="ai-advice">
+            <b>💡 نصيحة أثر الذكية:</b>
+            <span id="advice-text">ابدأ بتسجيل عملياتك لتحليل سلوكك المالي.</span>
+        </div>
+        <div class="stat-card" style="margin-top:10px;">
+            <span>المستوى الحالي:</span>
+            <span id="level-badge" class="badge">مبتدئ واعي</span>
+        </div>
     </div>
 
-    <canvas id="chart"></canvas>
-
-    <div class="history-box">
-        <strong>📊 سجل العمليات:</strong>
-        <ul id="history"></ul>
+    <div class="panel full-width">
+        <h2>تحليل الاتجاهات الزمنية 📈</h2>
+        <canvas id="mainChart" height="100"></canvas>
     </div>
 </div>
 
 <script>
-    let score = parseInt(localStorage.getItem("athar_score")) || 0;
-    let transactions = JSON.parse(localStorage.getItem("athar_data")) || [];
-    let myChart;
+    let db = JSON.parse(localStorage.getItem('athar_pro_db')) || {
+        transactions: [],
+        points: 100,
+        ecoBalance: 50
+    };
 
-    // تحديث الواجهة عند التحميل
-    updateUI();
+    let chart;
 
-    function analyze() {
-        const amount = document.getElementById("amount").value;
-        const type = document.getElementById("type").value;
-        const need = document.getElementById("need").value;
-        const resDiv = document.getElementById("result-display");
+    function processTransaction() {
+        const amt = parseFloat(document.getElementById('amount').value);
+        const cat = document.getElementById('category').value;
+        const nec = document.getElementById('necessity').value;
 
-        if (!amount || amount <= 0) {
-            alert("يرجى إدخال مبلغ صحيح");
-            return;
-        }
+        if (!amt) return alert("أدخل المبلغ أولاً");
 
-        let impact = "";
-        let color = "";
-        let bgColor = "";
+        // منطق احترافي: حساب النقاط والأثر البيئي
+        let ptsChange = (nec === 'essential') ? 5 : -10;
+        let ecoChange = (cat === 'transport') ? -5 : (cat === 'edu' ? 10 : 0);
 
-        // منطق تحليل الأثر
-        if (need === "needed") {
-            impact = "أثر إيجابي (استثمار ذكي)";
-            score += 10;
-            bgColor = "#d4edda";
-            color = "#155724";
-        } else {
-            impact = "أثر سلبي (يمكن تقليله)";
-            score -= 5;
-            bgColor = "#f8d7da";
-            color = "#721c24";
-        }
+        db.points += ptsChange;
+        db.ecoBalance += ecoChange;
+        db.transactions.push({amt, cat, date: new Date().toLocaleTimeString()});
 
-        // عرض النتيجة
-        resDiv.style.display = "block";
-        resDiv.style.backgroundColor = bgColor;
-        resDiv.style.color = color;
-        resDiv.innerText = impact;
-
-        // حفظ البيانات
-        transactions.push(parseInt(amount));
-        localStorage.setItem("athar_data", JSON.stringify(transactions));
-        localStorage.setItem("athar_score", score);
-
-        updateUI();
-        document.getElementById("amount").value = "";
+        saveAndRefresh();
+        updateAdvice(nec, cat);
+        document.getElementById('amount').value = '';
     }
 
-    function updateUI() {
-        document.getElementById("score-val").innerText = score;
+    function updateAdvice(nec, cat) {
+        let text = "";
+        if (nec === 'luxury') text = "انتبه! صرفك على الكماليات يقلل من نقاط استدامتك المالية.";
+        if (cat === 'transport') text = "المواصلات تزيد بصمتك الكربونية، فكر في المشي أو النقل الجماعي.";
+        if (db.points > 150) text = "أنت الآن في مرحلة 'الحكيم المالي'، استمر في التوازن!";
         
-        // تحليل الشخصية
-        let pers = "متوازن";
-        if (score > 50) pers = "حكيم مالي";
-        if (score < 0) pers = "مسرف";
-        document.getElementById("pers-val").innerText = pers;
-
-        // تحديث السجل
-        const hist = document.getElementById("history");
-        hist.innerHTML = transactions.slice(-5).reverse().map(t => `<li><span>${t} ريال</span> <span>✅</span></li>`).join('');
-
-        updateChart();
+        document.getElementById('advice-text').innerText = text;
     }
 
-    function updateChart() {
-        const ctx = document.getElementById('chart').getContext('2d');
-        if (myChart) myChart.destroy();
+    function saveAndRefresh() {
+        localStorage.setItem('athar_pro_db', JSON.stringify(db));
+        document.getElementById('total-score').innerText = db.points;
+        document.getElementById('eco-impact').innerText = Math.max(0, Math.min(100, db.ecoBalance)) + "%";
         
-        myChart = new Chart(ctx, {
+        // تحديث المستوى
+        let lvl = "مبتدئ واعي";
+        if(db.points > 150) lvl = "مستشار مالي";
+        if(db.points > 300) lvl = "خبير استدامة";
+        document.getElementById('level-badge').innerText = lvl;
+
+        renderChart();
+    }
+
+    function renderChart() {
+        const ctx = document.getElementById('mainChart').getContext('2d');
+        if (chart) chart.destroy();
+
+        chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: transactions.map((_, i) => i + 1),
+                labels: db.transactions.map(t => t.date),
                 datasets: [{
-                    label: 'إنفاقك',
-                    data: transactions,
-                    borderColor: '#2ecc71',
-                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    label: 'حجم الإنفاق',
+                    data: db.transactions.map(t => t.amt),
+                    borderColor: '#2980b9',
+                    backgroundColor: 'rgba(41, 128, 185, 0.1)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.3
                 }]
             },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } }
-            }
+            options: { responsive: true }
         });
     }
+
+    saveAndRefresh();
 </script>
 
 </body>
