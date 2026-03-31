@@ -1,182 +1,144 @@
 
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر | Athar 🌱</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script type="module">
-        // استيراد أدوات Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } 
-        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        // إعدادات المشروع الخاصة بك
-        const firebaseConfig = {
-            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lhjm_eRg8SX_iUw",
-            authDomain: "athar-pro.firebaseapp.com",
-            projectId: "athar-pro",
-            storageBucket: "athar-pro.firebasestorage.app",
-            messagingSenderId: "958994453336",
-            appId: "1:958994453336:web:d4488297a848930285cb2d"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        // وظيفة حفظ البيانات في السحابة
-        window.saveToCloud = async function() {
-            const amt = document.getElementById('amt').value;
-            const cat = document.getElementById('cat').value;
-            const nec = document.getElementById('nec').value;
-            
-            if(!amt) return alert("فضلاً أدخل المبلغ");
-
-            try {
-                await addDoc(collection(db, "expenses"), {
-                    amount: parseFloat(amt),
-                    category: cat,
-                    necessity: nec,
-                    timestamp: new Date()
-                });
-                document.getElementById('amt').value = ''; // تصفير الخانة بعد الحفظ
-                console.log("تم الحفظ في السحابة!");
-            } catch (e) {
-                console.error("خطأ في الاتصال بالسحابة: ", e);
-            }
-        };
-
-        // تحديث البيانات لحظياً من السحابة
-        const q = query(collection(db, "expenses"), orderBy("timestamp", "asc"), limit(15));
-        onSnapshot(q, (snapshot) => {
-            let amounts = [];
-            let labels = [];
-            let score = 100;
-
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                amounts.push(data.amount);
-                labels.push(new Date(data.timestamp.seconds * 1000).toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'}));
-                // معادلة النقاط: الضروري يزيد 5، الكماليات تنقص 10
-                score += (data.necessity === 'yes' ? 5 : -10);
-            });
-
-            document.getElementById('liveScore').innerText = score;
-            renderChart(amounts, labels);
-        });
-
-        let myChart;
-        function renderChart(data, labels) {
-            const ctx = document.getElementById('myChart').getContext('2d');
-            if(myChart) myChart.destroy();
-            myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'تحليل الإنفاق',
-                        data: data,
-                        borderColor: '#27ae60',
-                        backgroundColor: 'rgba(39, 174, 96, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: { scales: { y: { beginAtZero: true } } }
-            });
-        }
-    </script>
-
+    <title>أثر | Athar</title>
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        :root {
+            --primary-green: #27ae60;
+            --light-bg: #f4f9f7;
+            --text-dark: #2c3e50;
+            --white: #ffffff;
         }
-        .app-card {
-            background: white;
-            width: 350px;
-            padding: 30px;
-            border-radius: 35px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
-            text-align: center;
-        }
-        h1 { color: #27ae60; font-size: 28px; margin-bottom: 5px; }
-        .tagline { color: #95a5a6; font-size: 13px; margin-bottom: 25px; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light-bg); color: var(--text-dark); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { background: var(--white); width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); }
         
-        .score-display {
-            background: #fdfdfd;
-            padding: 15px;
-            border-radius: 20px;
-            border: 1px solid #f0f0f0;
-            margin-bottom: 20px;
-        }
-        .score-display span { font-size: 12px; color: #7f8c8d; }
-        .score-display strong { display: block; font-size: 40px; color: #2c3e50; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--primary-green); margin: 0; font-size: 32px; letter-spacing: -1px; }
+        .header p { font-size: 13px; color: #7f8c8d; margin-top: 5px; }
 
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border: 1px solid #eee;
-            background: #f9f9f9;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-        .btn-save {
-            width: 100%;
-            padding: 15px;
-            background: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 17px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: 0.2s;
-        }
-        .btn-save:active { transform: scale(0.98); }
-        canvas { margin-top: 25px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        input, select { width: 100%; padding: 14px; border: 1.5px solid #edf2f0; border-radius: 15px; font-size: 16px; outline: none; transition: 0.3s; background: #fafdfc; }
+        input:focus { border-color: var(--primary-green); background: #fff; }
+
+        .btn-analyze { width: 100%; background: var(--primary-green); color: white; border: none; padding: 16px; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-analyze:active { transform: scale(0.98); }
+
+        /* نتائج التحليل الثلاثي */
+        #resultSection { display: none; margin-top: 25px; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .score-card { text-align: center; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        .score-emoji { font-size: 50px; display: block; margin-bottom: 10px; }
+
+        .triple-impact { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .impact-item { background: #fff; border: 1.5px solid #eee; padding: 12px 5px; border-radius: 15px; text-align: center; font-size: 11px; }
+        .impact-item b { display: block; font-size: 14px; margin-bottom: 4px; }
+        
+        .green { color: #27ae60; border-color: #27ae60; }
+        .yellow { color: #f1c40f; border-color: #f1c40f; }
+        .red { color: #e74c3c; border-color: #e74c3c; }
     </style>
 </head>
 <body>
 
-<div class="app-card">
-    <h1>أثر 🌱</h1>
-    <p class="tagline">تطبيق الإنفاق السحابي المستدام</p>
-
-    <div class="score-display">
-        <span>نقاط الأثر اللحظية</span>
-        <strong id="liveScore">100</strong>
+<div class="app-container">
+    <div class="header">
+        <h1>أثر | Athar 🌿</h1>
+        <p>فهم أثر قراراتك المالية والبيئية والاجتماعية</p>
     </div>
 
-    <input type="number" id="amt" placeholder="المبلغ (ريال)">
-    
-    <select id="cat">
-        <option value="food">🍽️ طعام</option>
-        <option value="coffee">☕ قهوة</option>
-        <option value="study">📚 دراسة</option>
-        <option value="fun">🎮 ترفيه</option>
-    </select>
+    <div class="input-group">
+        <label>كم ستصرف؟ (ريال)</label>
+        <input type="number" id="amount" placeholder="0.00" inputmode="decimal">
+    </div>
 
-    <select id="nec">
-        <option value="yes">ضروري ✅</option>
-        <option value="no">كماليات ❌</option>
-    </select>
+    <div class="input-group">
+        <label>تصنيف المنتج</label>
+        <select id="type">
+            <option value="local">🇸🇦 منتج محلي (أثر عالي)</option>
+            <option value="eco">♻️ صديق للبيئة (مستدام)</option>
+            <option value="imported">🌍 منتج مستورد (عادي)</option>
+            <option value="waste">⚠️ استهلاك هدر (بلاستيك/طاقة)</option>
+        </select>
+    </div>
 
-    <button class="btn-save" onclick="saveToCloud()">حفظ في السحابة</button>
+    <div class="input-group">
+        <label>درجة الضرورة</label>
+        <select id="necessity">
+            <option value="high">✅ احتياج ضروري</option>
+            <option value="low">✨ رغبة / ترفيه</option>
+        </select>
+    </div>
 
-    <canvas id="myChart" height="150"></canvas>
+    <button class="btn-analyze" onclick="startAnalysis()">تحليل الأثر الآن</button>
+
+    <div id="resultSection">
+        <div id="scoreBox" class="score-card">
+            <span id="scoreEmoji" class="score-emoji">🟢</span>
+            <h3 id="scoreTitle" style="margin:0">أثر إيجابي</h3>
+            <p id="scoreText" style="font-size: 13px; margin: 10px 0 0;"></p>
+        </div>
+
+        <div class="triple-impact">
+            <div class="impact-item" id="finBox"><b>مالي</b><span id="finStatus"></span></div>
+            <div class="impact-item" id="socBox"><b>اجتماعي</b><span id="socStatus"></span></div>
+            <div class="impact-item" id="envBox"><b>بيئي</b><span id="envStatus"></span></div>
+        </div>
+        
+        <p style="text-align:center; font-size:10px; color:#999; margin-top:20px;">تقريرك الأسبوعي القادم جاهز بنسبة 85% 📈</p>
+    </div>
 </div>
+
+<script>
+    function startAnalysis() {
+        const amt = document.getElementById('amount').value;
+        const type = document.getElementById('type').value;
+        const necessity = document.getElementById('necessity').value;
+        
+        if(!amt) { alert("أدخل المبلغ أولاً"); return; }
+        
+        document.getElementById('resultSection').style.display = 'block';
+        
+        let score = 0;
+        let fin, soc, env;
+
+        // التحليل المالي (ضرورة الصرف)
+        if(necessity === 'high') { score += 2; fin = "حكيم"; } 
+        else { score += 1; fin = "ترفيهي"; }
+
+        // التحليل الاجتماعي والبيئي
+        if(type === 'local') { score += 3; soc = "داعم 🇸🇦"; env = "عادي"; }
+        else if(type === 'eco') { score += 3; env = "مستدام ♻️"; soc = "جيد"; }
+        else if(type === 'imported') { score += 1; soc = "عادي"; env = "عادي"; }
+        else { score -= 2; env = "ضار ⚠️"; soc = "سلبي"; }
+
+        // تحديث الواجهة
+        const box = document.getElementById('scoreBox');
+        if(score >= 4) {
+            updateUI("🟢", "أثر عالٍ", "أحسنت! هذا القرار يعزز الوعي المالي ويدعم الاستدامة.", "#d4edda", "#155724");
+        } else if(score >= 2) {
+            updateUI("🟡", "أثر متوسط", "قرار جيد، لكن حاول البحث عن بدائل محلية لرفع أثرك.", "#fff3cd", "#856404");
+        } else {
+            updateUI("🔴", "أثر منخفض", "انتبه! هذا الصرف قد يسبب هدرًا ماليًا أو بيئيًا غير ضروري.", "#f8d7da", "#721c24");
+        }
+
+        document.getElementById('finStatus').innerText = fin;
+        document.getElementById('socStatus').innerText = soc;
+        document.getElementById('envStatus').innerText = env;
+    }
+
+    function updateUI(emoji, title, text, bg, color) {
+        document.getElementById('scoreEmoji').innerText = emoji;
+        document.getElementById('scoreTitle').innerText = title;
+        document.getElementById('scoreText').innerText = text;
+        document.getElementById('scoreBox').style.backgroundColor = bg;
+        document.getElementById('scoreBox').style.color = color;
+    }
+</script>
 
 </body>
 </html>
