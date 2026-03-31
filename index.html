@@ -1,57 +1,71 @@
 
+
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر PRO | نظام الإدارة المالية المستدامة</title>
+    <title>أثر PRO | نظام الاستدامة المالية والبيئية</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --nature-green: #27ae60;
-            --ocean-blue: #2980b9;
-            --soft-white: #ffffff;
-            --dark-text: #2c3e50;
+            --primary: #27ae60;
+            --secondary: #2980b9;
+            --accent: #f1c40f;
+            --bg: #f8f9fa;
+            --card-bg: #ffffff;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #f0f3f5;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background-color: var(--bg);
             margin: 0;
-            padding: 20px;
-            color: var(--dark-text);
+            padding: 15px;
+            color: #2c3e50;
         }
 
-        .dashboard {
-            max-width: 800px;
-            margin: 0 auto;
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 20px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .panel {
-            background: var(--soft-white);
+        .card {
+            background: var(--card-bg);
             padding: 20px;
             border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
         .full-width { grid-column: 1 / -1; }
 
-        h2 { color: var(--nature-green); margin-top: 0; font-size: 1.2rem; }
+        h2 { font-size: 1.1rem; margin-top: 0; color: var(--secondary); border-bottom: 2px solid #f1f1f1; padding-bottom: 10px; }
 
         input, select, button {
             width: 100%;
             padding: 12px;
-            margin: 8px 0;
+            margin: 10px 0;
             border-radius: 12px;
             border: 1px solid #ddd;
-            font-size: 14px;
+            font-size: 15px;
+            box-sizing: border-box;
         }
 
         button {
-            background: var(--nature-green);
+            background: var(--primary);
             color: white;
             border: none;
             font-weight: bold;
@@ -61,165 +75,158 @@
 
         button:hover { background: #219150; transform: translateY(-2px); }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-        .stat-card {
-            background: #f8f9fa;
+        .stat-box {
+            background: #f1f8f5;
             padding: 15px;
             border-radius: 15px;
             text-align: center;
+            margin-bottom: 10px;
         }
 
-        .stat-val { display: block; font-size: 20px; font-weight: bold; color: var(--ocean-blue); }
-
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            background: #e1f5fe;
-            color: #0288d1;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 5px;
-        }
+        .stat-num { display: block; font-size: 24px; font-weight: bold; color: var(--primary); }
 
         #ai-advice {
-            background: #e8f5e9;
-            border-left: 5px solid var(--nature-green);
+            background: #fff9e6;
+            border-right: 5px solid var(--accent);
             padding: 15px;
             border-radius: 10px;
             font-size: 14px;
-            margin-top: 15px;
+            line-height: 1.6;
         }
 
-        @media (max-width: 600px) { .dashboard { grid-template-columns: 1fr; } }
+        .badge {
+            background: var(--secondary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        @media (max-width: 600px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="panel full-width" style="text-align: center;">
-        <h1 style="margin:0;">أثر PRO 🌱</h1>
-        <p style="color: #666;">نظام ذكي لتحليل الاستدامة المالية والبيئية</p>
+<div class="header">
+    <h1 style="margin:0;">أثر PRO 🌱</h1>
+    <p style="opacity: 0.9; margin: 5px 0 0 0;">شريكك للتحول المالي المستدام</p>
+</div>
+
+<div class="main-grid">
+    <div class="card">
+        <h2>تسجيل إنفاق جديد 💸</h2>
+        <label>المبلغ بالريال:</label>
+        <input type="number" id="amt" placeholder="مثلاً: 50">
+        
+        <label>التصنيف:</label>
+        <select id="cat">
+            <option value="food">غذاء وعشاء</option>
+            <option value="trans">مواصلات وبنزين</option>
+            <option value="shop">تسوق وكماليات</option>
+            <option value="edu">تطوير وتعليم</option>
+        </select>
+
+        <label>نوع الحاجة:</label>
+        <select id="nec">
+            <option value="ess">ضرورة قصوى</option>
+            <option value="lux">رفاهية/غير ضروري</option>
+        </select>
+
+        <button onclick="addEntry()">تحليل الأثر الآن</button>
     </div>
 
-    <div class="panel">
-        <h2>تسجيل عملية 💳</h2>
-        <input type="number" id="amount" placeholder="المبلغ (ريال)">
-        <select id="category">
-            <option value="food">غذاء (أثر بيئي عالي)</option>
-            <option value="transport">مواصلات (بصمة كربونية)</option>
-            <option value="shop">كماليات (أثر اجتماعي)</option>
-            <option value="edu">تعليم (استثمار بشري)</option>
-        </select>
-        <select id="necessity">
-            <option value="essential">ضروري</option>
-            <option value="luxury">رفاهية</option>
-        </select>
-        <button onclick="processTransaction()">تحليل الذكاء المالي</button>
-    </div>
-
-    <div class="panel">
-        <h2>الحالة الراهنة 📊</h2>
-        <div class="stat-grid">
-            <div class="stat-card">
-                <span class="stat-val" id="total-score">0</span>
-                <span>نقاط الاستدامة</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-val" id="eco-impact">0%</span>
-                <span>البصمة الخضراء</span>
-            </div>
+    <div class="card">
+        <h2>لوحة النتائج الذكية 🧠</h2>
+        <div class="stat-box">
+            <span>رصيد نقاط الاستدامة</span>
+            <span class="stat-num" id="pts">100</span>
+            <span id="level" class="badge">مبتدئ واعي</span>
         </div>
+        
         <div id="ai-advice">
-            <b>💡 نصيحة أثر الذكية:</b>
-            <span id="advice-text">ابدأ بتسجيل عملياتك لتحليل سلوكك المالي.</span>
-        </div>
-        <div class="stat-card" style="margin-top:10px;">
-            <span>المستوى الحالي:</span>
-            <span id="level-badge" class="badge">مبتدئ واعي</span>
+            <b>💡 نصيحة الخوارزمية:</b>
+            <span id="adv-text">سجل أول عملية لتبدأ خوارزمية "أثر" في تحليل سلوكك.</span>
         </div>
     </div>
 
-    <div class="panel full-width">
-        <h2>تحليل الاتجاهات الزمنية 📈</h2>
-        <canvas id="mainChart" height="100"></canvas>
+    <div class="card full-width">
+        <h2>تحليل النمط المالي 📈</h2>
+        <canvas id="myChart" height="120"></canvas>
     </div>
 </div>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('athar_pro_db')) || {
-        transactions: [],
-        points: 100,
-        ecoBalance: 50
+    // نظام تخزين محاكي لقاعدة البيانات
+    let appData = JSON.parse(localStorage.getItem('athar_v2')) || {
+        score: 100,
+        history: []
     };
 
     let chart;
 
-    function processTransaction() {
-        const amt = parseFloat(document.getElementById('amount').value);
-        const cat = document.getElementById('category').value;
-        const nec = document.getElementById('necessity').value;
+    function addEntry() {
+        const val = parseFloat(document.getElementById('amt').value);
+        const cat = document.getElementById('cat').value;
+        const nec = document.getElementById('nec').value;
 
-        if (!amt) return alert("أدخل المبلغ أولاً");
+        if(!val) return alert("يرجى إدخال المبلغ");
 
-        // منطق احترافي: حساب النقاط والأثر البيئي
-        let ptsChange = (nec === 'essential') ? 5 : -10;
-        let ecoChange = (cat === 'transport') ? -5 : (cat === 'edu' ? 10 : 0);
+        // منطق حساب "أثر" المطور
+        let impact = (nec === 'ess') ? 10 : -15;
+        if(cat === 'edu') impact += 10; // مكافأة التعليم
 
-        db.points += ptsChange;
-        db.ecoBalance += ecoChange;
-        db.transactions.push({amt, cat, date: new Date().toLocaleTimeString()});
+        appData.score += impact;
+        appData.history.push({amt: val, date: new Date().toLocaleTimeString(), cat: cat});
 
-        saveAndRefresh();
         updateAdvice(nec, cat);
-        document.getElementById('amount').value = '';
+        saveAndRender();
+        document.getElementById('amt').value = '';
     }
 
     function updateAdvice(nec, cat) {
         let text = "";
-        if (nec === 'luxury') text = "انتبه! صرفك على الكماليات يقلل من نقاط استدامتك المالية.";
-        if (cat === 'transport') text = "المواصلات تزيد بصمتك الكربونية، فكر في المشي أو النقل الجماعي.";
-        if (db.points > 150) text = "أنت الآن في مرحلة 'الحكيم المالي'، استمر في التوازن!";
-        
-        document.getElementById('advice-text').innerText = text;
+        if(nec === 'lux') text = "انتبه! تقليل 'الرفاهيات' يزيد من استقرارك المالي المستقبلي.";
+        else if(cat === 'edu') text = "رائع! الاستثمار في التعليم هو أعلى أنواع الأثر إيجابية.";
+        else text = "توازن جيد، استمر في مراقبة مصاريفك الضرورية.";
+
+        document.getElementById('adv-text').innerText = text;
     }
 
-    function saveAndRefresh() {
-        localStorage.setItem('athar_pro_db', JSON.stringify(db));
-        document.getElementById('total-score').innerText = db.points;
-        document.getElementById('eco-impact').innerText = Math.max(0, Math.min(100, db.ecoBalance)) + "%";
-        
+    function saveAndRender() {
+        localStorage.setItem('athar_v2', JSON.stringify(appData));
+        document.getElementById('pts').innerText = appData.score;
+
         // تحديث المستوى
-        let lvl = "مبتدئ واعي";
-        if(db.points > 150) lvl = "مستشار مالي";
-        if(db.points > 300) lvl = "خبير استدامة";
-        document.getElementById('level-badge').innerText = lvl;
+        let lvl = "مبتدئ";
+        if(appData.score > 150) lvl = "حكيم مالي";
+        if(appData.score > 250) lvl = "خبير استدامة";
+        document.getElementById('level').innerText = lvl;
 
         renderChart();
     }
 
     function renderChart() {
-        const ctx = document.getElementById('mainChart').getContext('2d');
-        if (chart) chart.destroy();
+        const ctx = document.getElementById('myChart').getContext('2d');
+        if(chart) chart.destroy();
 
         chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: db.transactions.map(t => t.date),
+                labels: appData.history.map(h => h.date).slice(-7),
                 datasets: [{
-                    label: 'حجم الإنفاق',
-                    data: db.transactions.map(t => t.amt),
+                    label: 'حركة المصاريف',
+                    data: appData.history.map(h => h.amt).slice(-7),
                     borderColor: '#2980b9',
                     backgroundColor: 'rgba(41, 128, 185, 0.1)',
                     fill: true,
-                    tension: 0.3
+                    tension: 0.4
                 }]
-            },
-            options: { responsive: true }
+            }
         });
     }
 
-    saveAndRefresh();
+    // التشغيل الأولي
+    saveAndRender();
 </script>
 
 </body>
