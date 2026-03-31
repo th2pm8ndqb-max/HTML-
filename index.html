@@ -1,192 +1,285 @@
-‏<!DOCTYPE html>
-‏<html lang="ar">
-‏<head>
-‏<meta charset="UTF-8">
-‏<title>أثر PRO</title>
 
-‏<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-‏<style>
-‏body {
-‏    font-family: Arial;
-‏    background: linear-gradient(#2ECC71, #3498DB);
-‏    direction: rtl;
-‏    margin: 0;
-}
-
-‏.app {
-‏    max-width: 360px;
-‏    margin: 20px auto;
-‏    background: white;
-‏    border-radius: 20px;
-‏    padding: 15px;
-}
-
-‏h1 {
-‏    text-align: center;
-‏    color: #2ECC71;
-}
-
-‏input, select {
-‏    width: 100%;
-‏    padding: 10px;
-‏    margin: 5px 0;
-‏    border-radius: 10px;
-‏    border: 1px solid #ddd;
-}
-
-‏button {
-‏    width: 100%;
-‏    padding: 12px;
-‏    background: #2ECC71;
-‏    color: white;
-‏    border: none;
-‏    border-radius: 10px;
-‏    margin-top: 5px;
-}
-
-‏.result {
-‏    padding: 10px;
-‏    margin-top: 10px;
-‏    border-radius: 10px;
-‏    color: white;
-‏    text-align: center;
-}
-
-‏.green {background: #2ECC71;}
-‏.red {background: #E74C3C;}
-‏.yellow {background: #F1C40F; color:black;}
-
-‏.card {
-‏    background: #ecf0f1;
-‏    padding: 10px;
-‏    margin-top: 10px;
-‏    border-radius: 10px;
-}
-
-‏</style>
-‏</head>
-
-‏<body>
-
-‏<div class="app">
-
-‏<h1>أثر PRO 🌱</h1>
-
-‏<input type="number" id="amount" placeholder="كم صرفت؟">
-
-‏<select id="type">
-‏<option>غذاء</option>
-‏<option>مواصلات</option>
-‏<option>كماليات</option>
-‏<option>تعليم</option>
-‏</select>
-
-‏<select id="need">
-‏<option value="needed">ضروري</option>
-‏<option value="not">غير ضروري</option>
-‏</select>
-
-‏<button onclick="analyze()">تحليل الأثر</button>
-
-‏<div id="result"></div>
-
-‏<div class="card" id="score">⭐ نقاطك: 0</div>
-‏<div class="card" id="personality">👤 شخصيتك: —</div>
-‏<div class="card" id="challenge">🎯 التحدي: قلل الكماليات اليوم</div>
-
-‏<canvas id="chart"></canvas>
-
-‏<div class="card">
-‏<b>📊 السجل:</b>
-‏<ul id="history"></ul>
-‏</div>
-
-‏</div>
-
-‏<script>
-
-‏let score = localStorage.getItem("score") || 0;
-‏let bad = localStorage.getItem("bad") || 0;
-‏let data = JSON.parse(localStorage.getItem("data")) || [];
-
-‏document.getElementById("score").innerHTML = "⭐ نقاطك: " + score;
-
-‏function analyze() {
-‏    let amount = document.getElementById("amount").value;
-‏    let need = document.getElementById("need").value;
-
-‏    let result = document.getElementById("result");
-
-‏    if(amount == "") {
-‏        result.innerHTML = "⚠️ أدخل المبلغ";
-‏        result.className = "result red";
-‏        return;
-    }
-
-‏    amount = parseInt(amount);
-
-‏    let color = "";
-‏    let text = "";
-
-‏    if(need == "needed" && amount < 50) {
-‏        text = "🟢 ممتاز";
-‏        color = "green";
-‏        score = parseInt(score) + 10;
-‏    } else if(need == "not") {
-‏        text = "🔴 غير ضروري";
-‏        color = "red";
-‏        score -= 5;
-‏        bad++;
-‏    } else {
-‏        text = "🟡 متوسط";
-‏        color = "yellow";
-‏        score += 2;
-    }
-
-‏    result.innerHTML = text;
-‏    result.className = "result " + color;
-
-    // حفظ البيانات
-‏    data.push(amount);
-‏    localStorage.setItem("data", JSON.stringify(data));
-‏    localStorage.setItem("score", score);
-‏    localStorage.setItem("bad", bad);
-
-‏    document.getElementById("score").innerHTML = "⭐ نقاطك: " + score;
-
-    // الشخصية
-‏    let personality = "متوازن";
-‏    if(bad > 3) personality = "مسرف";
-‏    if(score > 30) personality = "اقتصادي";
-
-‏    document.getElementById("personality").innerHTML = "👤 شخصيتك: " + personality;
-
-    // سجل
-‏    let li = document.createElement("li");
-‏    li.innerText = amount + " ريال - " + text;
-‏    document.getElementById("history").appendChild(li);
-
-‏    updateChart();
-}
-
-‏function updateChart() {
-‏    let ctx = document.getElementById('chart').getContext('2d');
-‏    new Chart(ctx, {
-‏        type: 'line',
-‏        data: {
-‏            labels: data.map((_, i) => i+1),
-‏            datasets: [{
-‏                label: 'المصروف',
-‏                data: data
-            }]
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر PRO 🌱</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #3498db;
+            --danger: #e74c3c;
+            --warning: #f1c40f;
+            --bg: #f4f7f6;
         }
-    });
-}
 
-‏updateChart();
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 10px;
+        }
 
-‏</script>
+        .app-container {
+            background: rgba(255, 255, 255, 0.95);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            padding: 25px;
+            backdrop-filter: blur(10px);
+        }
 
-‏</body>
-‏</html>
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .status-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 15px;
+            text-align: center;
+            border-right: 4px solid var(--primary);
+            font-size: 14px;
+        }
+
+        #result-display {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .history-box {
+            margin-top: 20px;
+            max-height: 150px;
+            overflow-y: auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid #eee;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            padding: 8px;
+            border-bottom: 1px solid #f1f1f1;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        canvas {
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>أثر PRO 🌱</h1>
+
+    <div class="input-group">
+        <label>المبلغ الصادر</label>
+        <input type="number" id="amount" placeholder="ريال سعودي">
+    </div>
+
+    <div class="input-group">
+        <label>نوع المصروف</label>
+        <select id="type">
+            <option>غذاء</option>
+            <option>مواصلات</option>
+            <option>كماليات</option>
+            <option>تعليم</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>مدى الاحتياج</label>
+        <select id="need">
+            <option value="needed">ضروري جداً</option>
+            <option value="not">رغبة/كماليات</option>
+        </select>
+    </div>
+
+    <button onclick="analyze()">تحليل الأثر الآن</button>
+
+    <div id="result-display"></div>
+
+    <div class="status-cards">
+        <div class="card">⭐ النقاط: <span id="score-val">0</span></div>
+        <div class="card">👤 الشخصية: <span id="pers-val">بانتظارك</span></div>
+    </div>
+
+    <canvas id="chart"></canvas>
+
+    <div class="history-box">
+        <strong>📊 سجل العمليات:</strong>
+        <ul id="history"></ul>
+    </div>
+</div>
+
+<script>
+    let score = parseInt(localStorage.getItem("athar_score")) || 0;
+    let transactions = JSON.parse(localStorage.getItem("athar_data")) || [];
+    let myChart;
+
+    // تحديث الواجهة عند التحميل
+    updateUI();
+
+    function analyze() {
+        const amount = document.getElementById("amount").value;
+        const type = document.getElementById("type").value;
+        const need = document.getElementById("need").value;
+        const resDiv = document.getElementById("result-display");
+
+        if (!amount || amount <= 0) {
+            alert("يرجى إدخال مبلغ صحيح");
+            return;
+        }
+
+        let impact = "";
+        let color = "";
+        let bgColor = "";
+
+        // منطق تحليل الأثر
+        if (need === "needed") {
+            impact = "أثر إيجابي (استثمار ذكي)";
+            score += 10;
+            bgColor = "#d4edda";
+            color = "#155724";
+        } else {
+            impact = "أثر سلبي (يمكن تقليله)";
+            score -= 5;
+            bgColor = "#f8d7da";
+            color = "#721c24";
+        }
+
+        // عرض النتيجة
+        resDiv.style.display = "block";
+        resDiv.style.backgroundColor = bgColor;
+        resDiv.style.color = color;
+        resDiv.innerText = impact;
+
+        // حفظ البيانات
+        transactions.push(parseInt(amount));
+        localStorage.setItem("athar_data", JSON.stringify(transactions));
+        localStorage.setItem("athar_score", score);
+
+        updateUI();
+        document.getElementById("amount").value = "";
+    }
+
+    function updateUI() {
+        document.getElementById("score-val").innerText = score;
+        
+        // تحليل الشخصية
+        let pers = "متوازن";
+        if (score > 50) pers = "حكيم مالي";
+        if (score < 0) pers = "مسرف";
+        document.getElementById("pers-val").innerText = pers;
+
+        // تحديث السجل
+        const hist = document.getElementById("history");
+        hist.innerHTML = transactions.slice(-5).reverse().map(t => `<li><span>${t} ريال</span> <span>✅</span></li>`).join('');
+
+        updateChart();
+    }
+
+    function updateChart() {
+        const ctx = document.getElementById('chart').getContext('2d');
+        if (myChart) myChart.destroy();
+        
+        myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: transactions.map((_, i) => i + 1),
+                datasets: [{
+                    label: 'إنفاقك',
+                    data: transactions,
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
