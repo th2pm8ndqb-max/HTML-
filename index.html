@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر - Athar | النسخة السحابية</title>
+    <title>أثر - Athar | النسخة الكاملة السحابية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     
@@ -24,7 +24,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // تعديل: الربط مع جدول expenses الموجود في صورتك
+        // وظيفة الإرسال لجدول expenses
         window.processTransaction = async function() {
             const amountInput = document.getElementById('input-amount');
             const titleInput = document.getElementById('input-title');
@@ -44,41 +44,45 @@
                     isEco: isEco,
                     timestamp: new Date()
                 });
-
                 amountInput.value = ''; titleInput.value = '';
                 window.navTo('home', document.querySelectorAll('.nav-btn')[0]);
-            } catch (e) { alert("حدث خطأ في الإرسال للسحاب"); console.log(e); }
+            } catch (e) { alert("خطأ في السحاب"); }
         };
 
+        // استرجاع البيانات وتحديث كل الصفحات (الرئيسية + التقارير)
         const q = query(collection(db, "expenses"), orderBy("timestamp", "desc"));
         onSnapshot(q, (snapshot) => {
             const list = document.getElementById('transactions-list');
             list.innerHTML = '';
             let totalAmt = 0;
             let totalPts = 0;
+            let lastTitle = "";
 
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 totalAmt += data.amount;
+                lastTitle = data.title;
                 let earned = (data.category === 'need' && (data.isLocal || data.isEco)) ? 10 : (data.category === 'want' ? 0 : 5);
                 totalPts += earned;
 
                 const card = document.createElement('div');
                 card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50 mb-3";
-                card.innerHTML = `
-                    <div class="flex items-center gap-4 text-right">
-                        <div class="bg-green-100 p-3 rounded-2xl text-xl">${data.isEco ? '🌱' : '💰'}</div>
-                        <div>
-                            <h4 class="font-black text-gray-800 text-sm">${data.title || 'بدون عنوان'}</h4>
-                            <p class="text-[10px] text-gray-400 font-bold">${data.category === 'need' ? 'احتياج' : 'رغبة'} ${data.isLocal ? '• 🇸🇦 محلي' : ''}</p>
-                        </div>
-                    </div>
-                    <div class="text-left font-black text-green-700 text-sm">${data.amount} ريال</div>
-                `;
+                card.innerHTML = `<div class="flex items-center gap-4 text-right">
+                    <div class="bg-green-100 p-3 rounded-2xl text-xl">${data.isEco ? '🌱' : '💰'}</div>
+                    <div><h4 class="font-black text-gray-800 text-sm">${data.title}</h4>
+                    <p class="text-[10px] text-gray-400 font-bold">${data.category === 'need' ? 'احتياج' : 'رغبة'}</p></div>
+                </div><div class="text-left font-black text-green-700 text-sm">${data.amount} ريال</div>`;
                 list.appendChild(card);
             });
+
             document.getElementById('home-total').innerText = totalAmt.toLocaleString();
             document.getElementById('user-points').innerText = totalPts;
+
+            // تحديث نص التقارير بناءً على البيانات السحابية
+            if (totalAmt > 0) {
+                document.getElementById('suggestion-text').innerText = "بياناتك السحابية تشير إلى وعي مالي متزايد. استمر في دعم المنتج المحلي!";
+                document.getElementById('report-fin-text').innerText = `إجمالي صرفك حتى الآن ${totalAmt} ريال. حاول موازنة الرغبات في الأسبوع القادم.`;
+            }
         });
     </script>
 
@@ -91,29 +95,27 @@
     </style>
 </head>
 <body class="bg-gray-50 text-right">
+
     <div id="page-home" class="page active">
         <div class="bg-gradient-to-b from-green-700 to-green-600 p-8 rounded-b-[40px] text-white shadow-xl">
             <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold">أهلاً بك في أثر 👋</h1>
-                    <p class="opacity-80 text-sm italic">وعيك المالي يبدأ من هنا</p>
-                </div>
-                <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">🎯 نقاط الأثر: <span id="user-points">0</span></div>
+                <div><h1 class="text-2xl font-bold">أهلاً بك في أثر 👋</h1><p class="opacity-80 text-sm italic">وعيك المالي يبدأ من هنا</p></div>
+                <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">🎯 نقاط: <span id="user-points">0</span></div>
             </div>
-            <div class="bg-white/10 p-6 rounded-3xl border border-white/20 backdrop-blur-md">
-                <p class="text-sm opacity-90 mb-1 text-center">إجمالي المصروفات</p>
-                <h2 class="text-4xl font-black mb-4 text-center"><span id="home-total">0</span> <span class="text-lg">ريال</span></h2>
+            <div class="bg-white/10 p-6 rounded-3xl border border-white/20 backdrop-blur-md text-center">
+                <p class="text-sm opacity-90 mb-1">إجمالي المصروفات</p>
+                <h2 class="text-4xl font-black mb-4"><span id="home-total">0</span> <span class="text-lg">ريال</span></h2>
             </div>
         </div>
         <div class="p-6">
             <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
-            <div id="transactions-list" class="space-y-4"></div>
+            <div id="transactions-list"></div>
         </div>
     </div>
 
     <div id="page-add" class="page">
         <div class="p-6">
-            <h2 class="text-3xl font-black text-gray-800 mb-8 text-right">إضافة مصروف</h2>
+            <h2 class="text-3xl font-black text-gray-800 mb-8">إضافة مصروف</h2>
             <div class="bg-white p-6 rounded-[30px] shadow-2xl space-y-6 border border-gray-100">
                 <input type="number" id="input-amount" class="w-full bg-gray-50 p-5 rounded-2xl text-2xl font-bold text-center text-green-700 outline-none" placeholder="0.00">
                 <input type="text" id="input-title" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold text-right" placeholder="في ماذا صرفت؟">
@@ -122,21 +124,42 @@
                     <button onclick="setCategory('want', this)" class="cat-btn border-2 border-transparent bg-gray-50 p-3 rounded-2xl font-bold text-gray-500">رغبة</button>
                 </div>
                 <div class="space-y-4 bg-gray-50 p-5 rounded-2xl">
-                    <div class="flex items-center justify-between font-bold"><span>دعم منتج محلي؟ 🇸🇦</span> <input type="checkbox" id="check-local" class="w-6 h-6"></div>
-                    <div class="flex items-center justify-between font-bold"><span>خيار مستدام؟ 🌱</span> <input type="checkbox" id="check-eco" class="w-6 h-6"></div>
+                    <div class="flex items-center justify-between font-bold"><span>دعم منتج محلي؟ 🇸🇦</span> <input type="checkbox" id="check-local" class="w-6 h-6 accent-green-600"></div>
+                    <div class="flex items-center justify-between font-bold"><span>خيار مستدام؟ 🌱</span> <input type="checkbox" id="check-eco" class="w-6 h-6 accent-green-600"></div>
                 </div>
                 <button onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg">رصد الأثر وتأكيد ✅</button>
             </div>
         </div>
     </div>
 
+    <div id="page-reports" class="page">
+        <div class="p-6 space-y-6">
+            <h2 class="text-3xl font-black text-gray-800 mb-6 text-right">التقارير الذكية</h2>
+            <div class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
+                <h4 class="font-bold text-yellow-800 text-sm mb-1 text-right">💡 الاقتراح الذكي:</h4>
+                <p id="suggestion-text" class="text-xs text-yellow-700 leading-relaxed font-bold text-right">ابدأ بالرصد لنحلل بياناتك السحابية!</p>
+            </div>
+            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-blue-500 text-right">
+                <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase">الأثر المالي</h4>
+                <p id="report-fin-text" class="text-xs text-gray-500 font-bold italic leading-relaxed">جاري التحليل من السحاب..</p>
+            </div>
+            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-green-500 text-right">
+                <h4 class="font-bold text-green-800 text-xs mb-1 uppercase">الأثر الاجتماعي والبيئي</h4>
+                <p class="text-xs text-gray-500 font-bold italic leading-relaxed">استمر في دعم الخيارات المستدامة 🌱</p>
+            </div>
+        </div>
+    </div>
+
     <div class="fixed bottom-0 left-0 right-0 glass h-24 flex justify-around items-center px-6 border-t z-50">
         <button onclick="navTo('home', this)" class="nav-btn text-green-600 flex flex-col items-center">
-            <span class="text-[10px] font-bold mt-1">الرئيسية</span>
+            <span class="text-[10px] font-bold">الرئيسية</span>
         </button>
         <button onclick="navTo('add', this)" class="nav-btn text-gray-400 flex flex-col items-center">
             <div class="bg-green-600 text-white p-4 rounded-2xl -mt-14 shadow-lg">➕</div>
-            <span class="text-[10px] font-bold mt-1">إضافة</span>
+            <span class="text-[10px] font-bold">إضافة</span>
+        </button>
+        <button onclick="navTo('reports', this)" class="nav-btn text-gray-400 flex flex-col items-center">
+            <span class="text-[10px] font-bold">التقارير</span>
         </button>
     </div>
 
@@ -145,6 +168,8 @@
         function navTo(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
+            if(btn) btn.classList.replace('text-gray-400', 'text-green-600');
         }
         window.setCategory = function(cat, btn) {
             window.selectedCategory = cat;
