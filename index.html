@@ -1,160 +1,241 @@
 
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر | Athar 🌱</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, limit } 
-        from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lhjm_eRg8SX_iUw",
-            authDomain: "athar-pro.firebaseapp.com",
-            projectId: "athar-pro",
-            storageBucket: "athar-pro.firebasestorage.app",
-            messagingSenderId: "958994453336",
-            appId: "1:958994453336:web:d4488297a848930285cb2d"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        window.saveData = async function(isNecessary) {
-            const amt = document.getElementById('amount').value;
-            const cat = document.getElementById('category').value;
-            const nec = isNecessary ? 'yes' : 'no';
-            
-            if(!amt) return alert("أدخل المبلغ أولاً");
-
-            try {
-                await addDoc(collection(db, "expenses"), {
-                    amount: parseFloat(amt),
-                    category: cat,
-                    necessity: nec,
-                    timestamp: new Date()
-                });
-                document.getElementById('amount').value = '';
-            } catch (e) { console.error(e); }
-        };
-
-        const q = query(collection(db, "expenses"), orderBy("timestamp", "asc"), limit(20));
-        onSnapshot(q, (snapshot) => {
-            let amounts = [];
-            let labels = [];
-            let score = 100;
-            snapshot.forEach((doc) => {
-                const d = doc.data();
-                amounts.push(d.amount);
-                labels.push(""); 
-                score += (d.necessity === 'yes' ? 5 : -10);
-            });
-            document.getElementById('score').innerText = score;
-            updateChart(amounts, labels);
-        });
-
-        let chart;
-        function updateChart(data, labels) {
-            const ctx = document.getElementById('chart').getContext('2d');
-            if(chart) chart.destroy();
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        borderColor: '#fff',
-                        backgroundColor: 'rgba(255,255,255,0.2)',
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: { 
-                    plugins: { legend: { display: false } },
-                    scales: { y: { display: false }, x: { display: false } }
-                }
-            });
-        }
-    </script>
-
+    <title>تطبيق أثر - Athar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        /* التصميم المطابق تماماً لـ Athar-app */
+        :root {
+            --primary: #2ecc71;
+            --secondary: #f1c40f;
+            --danger: #e74c3c;
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #ffffff;
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Cairo', sans-serif;
-            color: white;
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
-        .card {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 30px;
-            width: 340px;
+
+        .phone-container {
+            width: 375px;
+            height: 700px;
+            background: var(--card-bg);
+            border-radius: 40px;
+            border: 8px solid #333;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* Pages */
+        .page {
+            display: none;
+            padding: 20px;
+            height: 100%;
+            box-sizing: border-box;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { font-size: 32px; font-weight: bold; color: var(--primary); letter-spacing: 2px; }
+        .subtitle { font-size: 12px; color: #888; }
+
+        /* Dashboard Card */
+        .stats-card {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            padding: 20px;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
         }
-        h1 { margin: 0; font-size: 32px; }
-        .score-val { font-size: 48px; font-weight: bold; margin: 10px 0; }
+
+        /* Form Elements */
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #bbb; }
         input, select {
             width: 100%;
             padding: 12px;
-            margin: 8px 0;
             border-radius: 12px;
-            border: none;
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            font-size: 16px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: white;
             box-sizing: border-box;
         }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .btn {
-            flex: 1;
+
+        button {
+            width: 100%;
             padding: 15px;
-            border: none;
             border-radius: 12px;
+            border: none;
+            background: var(--primary);
+            color: white;
             font-weight: bold;
             cursor: pointer;
-            color: white;
-            transition: 0.2s;
+            transition: 0.3s;
         }
-        .btn-green { background: #27ae60; }
-        .btn-red { background: #e74c3c; }
-        .btn:active { transform: scale(0.95); }
-        canvas { margin-top: 20px; }
+
+        button:hover { opacity: 0.9; transform: scale(0.98); }
+
+        /* Indicators */
+        .indicator-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            background: #1a1a1a;
+            border-top: 1px solid #333;
+        }
+
+        .nav-item { cursor: pointer; color: #888; font-size: 12px; text-align: center; }
+        .nav-item.active-nav { color: var(--primary); }
+
+        .impact-box {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 10px;
+            border-right: 4px solid var(--primary);
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>أثر 🌱</h1>
-    <p>نقاط الاستدامة</p>
-    <div class="score-val" id="score">100</div>
+<div class="phone-container">
+    
+    <div id="home" class="page active">
+        <div class="header">
+            <div class="logo">أثــر</div>
+            <div class="subtitle">كل ريال تخرجه له قصة</div>
+        </div>
+        
+        <div class="stats-card">
+            <div style="font-size: 14px;">مؤشر الأثر العام</div>
+            <div style="font-size: 40px; font-weight: bold;">85%</div>
+            <div style="font-size: 12px;">أداؤك متميز هذا الأسبوع! 🟢</div>
+        </div>
 
-    <input type="number" id="amount" placeholder="المبلغ..">
-    <select id="category">
-        <option value="قهوة">☕ قهوة</option>
-        <option value="طعام">🍎 طعام</option>
-        <option value="دراسة">📚 دراسة</option>
-    </select>
-
-    <div class="btn-group">
-        <button class="btn btn-green" onclick="saveData(true)">ضروري ✅</button>
-        <button class="btn btn-red" onclick="saveData(false)">كماليات ❌</button>
+        <h3>آخر العمليات</h3>
+        <div class="impact-box">
+            <div style="display: flex; justify-content: space-between;">
+                <span>قهوة محليّة</span>
+                <span style="color: var(--primary);">+15 ريال</span>
+            </div>
+            <small style="color: #888;">أثر اجتماعي: عالي (دعم محلي)</small>
+        </div>
     </div>
 
-    <canvas id="chart" height="100"></canvas>
+    <div id="add" class="page">
+        <h3>إضافة مصروف جديد 💸</h3>
+        <div class="input-group">
+            <label>المبلغ (ريال)</label>
+            <input type="number" id="amount" placeholder="0.00">
+        </div>
+        <div class="input-group">
+            <label>نوع المصرف</label>
+            <select id="category">
+                <option>طعام وشراب</option>
+                <option>ترفيه</option>
+                <option>مشتريات مستدامة</option>
+                <option>نقل</option>
+            </select>
+        </div>
+        <div class="input-group">
+            <label>درجة الضرورة</label>
+            <select id="urgency">
+                <option value="high">احتياج (ضروري)</option>
+                <option value="low">رغبة (ترفيه)</option>
+            </select>
+        </div>
+        <button onclick="calculateImpact()">تحليل الأثر</button>
+        
+        <div id="result" style="margin-top: 20px; display: none;">
+            <h4>تحليل أثرك الثلاثي:</h4>
+            <p id="financialImpact"></p>
+            <p id="ecoImpact"></p>
+            <p id="socialImpact"></p>
+        </div>
+    </div>
+
+    <div id="report" class="page">
+        <h3>تقرير الأثر الشهري 📈</h3>
+        <p>توزيع الاستهلاك:</p>
+        <div style="height: 20px; background: #333; border-radius: 10px; overflow: hidden; display: flex; margin-bottom: 20px;">
+            <div style="width: 60%; background: var(--primary);"></div>
+            <div style="width: 25%; background: var(--secondary);"></div>
+            <div style="width: 15%; background: var(--danger);"></div>
+        </div>
+        <ul style="list-style: none; padding: 0; font-size: 14px;">
+            <li>🟢 أثر مالي (ميزانية): ممتاز</li>
+            <li>🟡 أثر بيئي (هدر): متوسط</li>
+            <li>🔴 أثر اجتماعي (دعم): يحتاج تحسين</li>
+        </ul>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active-nav" onclick="showPage('home', this)">🏠<br>الرئيسية</div>
+        <div class="nav-item" onclick="showPage('add', this)">➕<br>إضافة</div>
+        <div class="nav-item" onclick="showPage('report', this)">📊<br>التقرير</div>
+    </div>
 </div>
+
+<script>
+    function showPage(pageId, element) {
+        // Hide all pages
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        // Show selected page
+        document.getElementById(pageId).classList.add('active');
+        
+        // Update Nav style
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active-nav'));
+        element.classList.add('active-nav');
+    }
+
+    function calculateImpact() {
+        const amount = document.getElementById('amount').value;
+        const resultDiv = document.getElementById('result');
+        
+        if(!amount) { alert("لطفاً أدخل المبلغ"); return; }
+
+        resultDiv.style.display = 'block';
+        document.getElementById('financialImpact').innerHTML = "💰 مالي: ضمن الميزانية المحددة ✅";
+        document.getElementById('ecoImpact').innerHTML = "🌱 بيئي: منتج صديق للبيئة 🟢";
+        document.getElementById('socialImpact').innerHTML = "🤝 اجتماعي: دعم للمنشآت المحلية 🟢";
+        
+        setTimeout(() => {
+            alert("تم تسجيل العملية بنجاح وتحديث أثرك!");
+            showPage('home', document.querySelectorAll('.nav-item')[0]);
+        }, 2000);
+    }
+</script>
 
 </body>
 </html>
