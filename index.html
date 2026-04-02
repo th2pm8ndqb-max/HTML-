@@ -1,5 +1,3 @@
- 
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -55,7 +53,7 @@
 
             <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
             <div id="transactions-list" class="space-y-4">
-                <div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>
+                <div class="text-center py-10 text-gray-400 text-sm italic">جاري تحميل البيانات من السحاب...</div>
             </div>
         </div>
     </div>
@@ -143,29 +141,33 @@
         </button>
     </div>
 
-    <script>
-        let total = 0;
-        let points = 0;
-        let selectedCategory = 'need';
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // دالة التنقل بين الصفحات (إصلاح كامل)
-        function navTo(pageId, btn) {
-            // إخفاء كافة الصفحات
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lhjm_eRg8SX_iUw",
+            authDomain: "athar-pro.firebaseapp.com",
+            projectId: "athar-pro",
+            storageBucket: "athar-pro.firebasestorage.app",
+            messagingSenderId: "958994453336",
+            appId: "1:958994453336:web:d4488297a848930285cb2d"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // جعل الوظائف متاحة عالمياً
+        window.selectedCategory = 'need';
+        window.navTo = function(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // إظهار الصفحة المطلوبة
             const activePage = document.getElementById('page-' + pageId);
             if(activePage) activePage.classList.add('active');
-
-            // تحديث ألوان الأزرار
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
-            if(btn) {
-                btn.classList.replace('text-gray-400', 'text-green-600');
-            }
-        }
+            if(btn) btn.classList.replace('text-gray-400', 'text-green-600');
+        };
 
-        // اختيار التصنيف (احتياج/رغبة)
-        function setCategory(cat, btn) {
-            selectedCategory = cat;
+        window.setCategory = function(cat, btn) {
+            window.selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => {
                 b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
                 b.classList.add('border-transparent', 'bg-gray-50', 'text-gray-500');
@@ -173,71 +175,62 @@
             btn.classList.replace('border-transparent', 'border-green-500');
             btn.classList.replace('bg-gray-50', 'bg-green-50');
             btn.classList.replace('text-gray-500', 'text-green-700');
-        }
+        };
 
-        // معالجة إضافة المصروف (نظام النقاط والذكاء)
-        function processTransaction() {
-            const amountInput = document.getElementById('input-amount');
+        window.processTransaction = async function() {
+            const amtInput = document.getElementById('input-amount');
             const titleInput = document.getElementById('input-title');
-            const amount = parseFloat(amountInput.value);
+            const amt = parseFloat(amtInput.value);
             const title = titleInput.value;
             const isLocal = document.getElementById('check-local').checked;
             const isEco = document.getElementById('check-eco').checked;
 
-            if (!amount || !title) return alert("عبّي البيانات كاملة يا بطل! 😊");
+            if (!amt || !title) return alert("عبّي البيانات كاملة يا بطل! 😊");
 
-            // 1. تحديث الإجمالي
-            total += amount;
-            document.getElementById('home-total').innerText = total.toLocaleString();
+            try {
+                await addDoc(collection(db, "expenses"), {
+                    amount: amt,
+                    category: title,
+                    necessity: window.selectedCategory,
+                    isLocal: isLocal,
+                    isEco: isEco,
+                    timestamp: new Date()
+                });
+                amtInput.value = ''; titleInput.value = '';
+                document.getElementById('check-local').checked = false;
+                document.getElementById('check-eco').checked = false;
+                window.navTo('home', document.querySelectorAll('.nav-btn')[0]);
+            } catch (e) { alert("خطأ في الاتصال بالسحاب"); }
+        };
 
-            // 2. نظام النقاط المطور (Gamification)
-            let earned = (selectedCategory === 'need' && (isLocal || isEco)) ? 10 : (selectedCategory === 'want' ? 0 : 5);
-            points += earned;
-            document.getElementById('user-points').innerText = points;
-
-            // 3. إضافة الكرت لقائمة العمليات
-            const list = document.getElementById('transactions-list');
-            if (list.innerHTML.includes('لا يوجد بيانات')) list.innerHTML = '';
-
-            const card = document.createElement('div');
-            card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
-            card.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="bg-green-100 p-3 rounded-2xl text-xl">${isEco ? '🌱' : '💰'}</div>
-                    <div>
-                        <h4 class="font-black text-gray-800 text-sm">${title}</h4>
-                        <p class="text-[10px] text-gray-400 font-bold italic">${selectedCategory === 'need' ? 'احتياج' : 'رغبة'} ${isLocal ? '• 🇸🇦 محلي' : ''}</p>
+        // تحديث الواجهة من السحاب
+        onSnapshot(query(collection(db, "expenses"), orderBy("timestamp", "desc")), (snap) => {
+            let total = 0, pts = 0;
+            const list = document.getElementById('transactions-list'); list.innerHTML = '';
+            snap.forEach(doc => {
+                const d = doc.data();
+                total += d.amount;
+                pts += (d.necessity === 'need' && (d.isLocal || d.isEco)) ? 10 : 5;
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="bg-green-100 p-3 rounded-2xl text-xl">${d.isEco ? '🌱' : '💰'}</div>
+                        <div>
+                            <h4 class="font-black text-gray-800 text-sm">${d.category}</h4>
+                            <p class="text-[10px] text-gray-400 font-bold italic">${d.necessity === 'need' ? 'احتياج' : 'رغبة'} ${d.isLocal ? '• 🇸🇦 محلي' : ''}</p>
+                        </div>
                     </div>
-                </div>
-                <div class="text-left font-black text-green-700 text-sm">${amount} ريال</div>
-            `;
-            list.prepend(card);
-
-            // 4. الاقتراح الذكي وتحديث التقارير (ذكاء اصطناعي محاكي)
-            const suggestBox = document.getElementById('suggestion-text');
-            if(title.includes("قهوة") || title.includes("كوفي")) {
-                const saving = amount * 3 * 4;
-                suggestBox.innerHTML = `قهوة يومية بـ ${amount} ريال؟ لو خففتها لـ 3 مرات بالأسبوع توفر <span class='text-orange-600 underline'>${saving} ريال بالشهر</span>! استثمرها في مستقبلك ☕`;
-            } else {
-                suggestBox.innerText = "أداء رائع! دعمك للمنتج المحلي يرفع من نقاط أثرك الوطني. استمر!";
-            }
-
-            document.getElementById('report-fin-text').innerText = (selectedCategory === 'want') ? "لاحظنا زيادة في صرف الرغبات، حاول موازنة ميزانيتك غداً." : "صرف ممتاز وواعٍ يركز على احتياجاتك الأساسية.";
-            document.getElementById('report-soc-text').innerText = isLocal ? "دعمك للمنتج المحلي ينمي اقتصادنا الوطني 🇸🇦" : "فكر في دعم التاجر المحلي في قراراتك القادمة لرفع أثرك الاجتماعي.";
-            
-            // تحديث الحالات في الواجهة
-            document.getElementById('eco-status').innerText = isEco ? "🟢 مستدام" : "🟡 متوسط";
-            document.getElementById('social-status').innerText = isLocal ? "🟢 عالي" : "🟡 متوسط";
-
-            // تنظيف المدخلات والرجوع
-            amountInput.value = ''; titleInput.value = '';
-            document.getElementById('check-local').checked = false;
-            document.getElementById('check-eco').checked = false;
-            
-            navTo('home', document.querySelectorAll('.nav-btn')[0]);
-            alert("تم رصد الأثر بنجاح! شاهد نقاطك والتقارير الجديدة 📊");
-        }
+                    <div class="text-left font-black text-green-700 text-sm">${d.amount} ريال</div>`;
+                list.appendChild(card);
+            });
+            document.getElementById('home-total').innerText = total.toLocaleString();
+            document.getElementById('user-points').innerText = pts;
+            document.getElementById('report-fin-text').innerText = total > 0 ? "صرف واعٍ يركز على احتياجاتك الأساسية." : "قيد الجمع..";
+            document.getElementById('eco-status').innerText = total > 0 ? "🟢 مستدام" : "🟡 متوسط";
+            document.getElementById('social-status').innerText = total > 0 ? "🟢 عالي" : "🟡 متوسط";
+            if(snap.empty) list.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>';
+        });
     </script>
 </body>
 </html>
-
