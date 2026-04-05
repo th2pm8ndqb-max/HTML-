@@ -1,123 +1,143 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أثر PRO | النموذج الأولي (Prototype)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أثر | Athar</title>
     <style>
-        /* فلسفة التصميم: بسيطة، مريحة للعين، وعصرية */
-        body {
-            background-color: #dcdde1; /* رمادي هادئ */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+        :root {
+            --primary-green: #27ae60;
+            --light-bg: #f4f9f7;
+            --text-dark: #2c3e50;
+            --white: #ffffff;
         }
-
-        .phone-mockup {
-            width: 320px;
-            height: 600px;
-            background: #f5f6fa;
-            border-radius: 40px;
-            border: 8px solid #2f3640;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            padding: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .header h1 { color: #27ae60; font-size: 24px; margin: 0; }
-        .header p { font-size: 12px; color: #7f8c8d; }
-
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 20px;
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-
-        .points { font-size: 32px; font-weight: bold; color: #2980b9; }
-
-        .input-group {
-            background: #eee;
-            padding: 15px;
-            border-radius: 20px;
-            border: 1px solid #ddd;
-        }
-
-        .dummy-input {
-            background: white;
-            height: 40px;
-            margin-bottom: 10px;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            padding-right: 10px;
-            color: #999;
-            font-size: 12px;
-        }
-
-        .btn-prototype {
-            background: #27ae60;
-            color: white;
-            text-align: center;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        .chart-placeholder {
-            margin-top: 30px;
-            height: 100px;
-            background: linear-gradient(90deg, transparent 50%, rgba(39,174,96,0.1) 50%);
-            background-size: 20px 100%;
-            border-bottom: 2px solid #27ae60;
-            position: relative;
-        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--light-bg); color: var(--text-dark); margin: 0; padding: 15px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { background: var(--white); width: 100%; max-width: 400px; border-radius: 25px; padding: 25px; box-shadow: 0 15px 40px rgba(0,0,0,0.05); }
         
-        .chart-line {
-            position: absolute;
-            top: 40px; width: 100%; height: 2px;
-            background: #27ae60;
-            transform: rotate(-5deg);
-        }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--primary-green); margin: 0; font-size: 32px; letter-spacing: -1px; }
+        .header p { font-size: 13px; color: #7f8c8d; margin-top: 5px; }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
+        input, select { width: 100%; padding: 14px; border: 1.5px solid #edf2f0; border-radius: 15px; font-size: 16px; outline: none; transition: 0.3s; background: #fafdfc; }
+        input:focus { border-color: var(--primary-green); background: #fff; }
+
+        .btn-analyze { width: 100%; background: var(--primary-green); color: white; border: none; padding: 16px; border-radius: 15px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-analyze:active { transform: scale(0.98); }
+
+        /* نتائج التحليل الثلاثي */
+        #resultSection { display: none; margin-top: 25px; animation: slideUp 0.5s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .score-card { text-align: center; padding: 20px; border-radius: 20px; margin-bottom: 20px; }
+        .score-emoji { font-size: 50px; display: block; margin-bottom: 10px; }
+
+        .triple-impact { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .impact-item { background: #fff; border: 1.5px solid #eee; padding: 12px 5px; border-radius: 15px; text-align: center; font-size: 11px; }
+        .impact-item b { display: block; font-size: 14px; margin-bottom: 4px; }
+        
+        .green { color: #27ae60; border-color: #27ae60; }
+        .yellow { color: #f1c40f; border-color: #f1c40f; }
+        .red { color: #e74c3c; border-color: #e74c3c; }
     </style>
 </head>
 <body>
 
-<div class="phone-mockup">
+<div class="app-container">
     <div class="header">
-        <h1>أثر PRO 🌱</h1>
-        <p>التخطيط الأولي للواجهة</p>
-    </div>
-
-    <div class="stat-card">
-        <span style="font-size: 14px; color: #666;">نقاطك الحالية</span>
-        <div class="points">100</div>
-        <div style="color: #27ae60; font-size: 12px;">مستدام ✅</div>
+        <h1>أثر | Athar 🌿</h1>
+        <p>فهم أثر قراراتك المالية والبيئية والاجتماعية</p>
     </div>
 
     <div class="input-group">
-        <div class="dummy-input">المبلغ...</div>
-        <div class="dummy-input">التصنيف (غذاء، قهوة...)</div>
-        <div class="dummy-input">هل هو ضروري؟</div>
-        <div class="btn-prototype">حفظ الأثر</div>
+        <label>كم ستصرف؟ (ريال)</label>
+        <input type="number" id="amount" placeholder="0.00" inputmode="decimal">
     </div>
 
-    <div class="chart-placeholder">
-        <div class="chart-line"></div>
-        <p style="font-size: 10px; text-align: center; margin-top: 80px; color: #7f8c8d;">نموذج تجريبي للرسم البياني</p>
+    <div class="input-group">
+        <label>تصنيف المنتج</label>
+        <select id="type">
+            <option value="local">🇸🇦 منتج محلي (أثر عالي)</option>
+            <option value="eco">♻️ صديق للبيئة (مستدام)</option>
+            <option value="imported">🌍 منتج مستورد (عادي)</option>
+            <option value="waste">⚠️ استهلاك هدر (بلاستيك/طاقة)</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label>درجة الضرورة</label>
+        <select id="necessity">
+            <option value="high">✅ احتياج ضروري</option>
+            <option value="low">✨ رغبة / ترفيه</option>
+        </select>
+    </div>
+
+    <button class="btn-analyze" onclick="startAnalysis()">تحليل الأثر الآن</button>
+
+    <div id="resultSection">
+        <div id="scoreBox" class="score-card">
+            <span id="scoreEmoji" class="score-emoji">🟢</span>
+            <h3 id="scoreTitle" style="margin:0">أثر إيجابي</h3>
+            <p id="scoreText" style="font-size: 13px; margin: 10px 0 0;"></p>
+        </div>
+
+        <div class="triple-impact">
+            <div class="impact-item" id="finBox"><b>مالي</b><span id="finStatus"></span></div>
+            <div class="impact-item" id="socBox"><b>اجتماعي</b><span id="socStatus"></span></div>
+            <div class="impact-item" id="envBox"><b>بيئي</b><span id="envStatus"></span></div>
+        </div>
+        
+        <p style="text-align:center; font-size:10px; color:#999; margin-top:20px;">تقريرك الأسبوعي القادم جاهز بنسبة 85% 📈</p>
     </div>
 </div>
 
+<script>
+    function startAnalysis() {
+        const amt = document.getElementById('amount').value;
+        const type = document.getElementById('type').value;
+        const necessity = document.getElementById('necessity').value;
+        
+        if(!amt) { alert("أدخل المبلغ أولاً"); return; }
+        
+        document.getElementById('resultSection').style.display = 'block';
+        
+        let score = 0;
+        let fin, soc, env;
+
+        // التحليل المالي (ضرورة الصرف)
+        if(necessity === 'high') { score += 2; fin = "حكيم"; } 
+        else { score += 1; fin = "ترفيهي"; }
+
+        // التحليل الاجتماعي والبيئي
+        if(type === 'local') { score += 3; soc = "داعم 🇸🇦"; env = "عادي"; }
+        else if(type === 'eco') { score += 3; env = "مستدام ♻️"; soc = "جيد"; }
+        else if(type === 'imported') { score += 1; soc = "عادي"; env = "عادي"; }
+        else { score -= 2; env = "ضار ⚠️"; soc = "سلبي"; }
+
+        // تحديث الواجهة
+        const box = document.getElementById('scoreBox');
+        if(score >= 4) {
+            updateUI("🟢", "أثر عالٍ", "أحسنت! هذا القرار يعزز الوعي المالي ويدعم الاستدامة.", "#d4edda", "#155724");
+        } else if(score >= 2) {
+            updateUI("🟡", "أثر متوسط", "قرار جيد، لكن حاول البحث عن بدائل محلية لرفع أثرك.", "#fff3cd", "#856404");
+        } else {
+            updateUI("🔴", "أثر منخفض", "انتبه! هذا الصرف قد يسبب هدرًا ماليًا أو بيئيًا غير ضروري.", "#f8d7da", "#721c24");
+        }
+
+        document.getElementById('finStatus').innerText = fin;
+        document.getElementById('socStatus').innerText = soc;
+        document.getElementById('envStatus').innerText = env;
+    }
+
+    function updateUI(emoji, title, text, bg, color) {
+        document.getElementById('scoreEmoji').innerText = emoji;
+        document.getElementById('scoreTitle').innerText = title;
+        document.getElementById('scoreText').innerText = text;
+        document.getElementById('scoreBox').style.backgroundColor = bg;
+        document.getElementById('scoreBox').style.color = color;
+    }
+</script>
+
+</body>
+</html>
