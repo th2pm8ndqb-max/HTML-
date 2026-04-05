@@ -1,167 +1,123 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر - Athar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <title>أثر PRO | النموذج الأولي (Prototype)</title>
     <style>
-        body { font-family: 'Tajawal', sans-serif; overflow: hidden; height: 100vh; }
-        .page { display: none; height: 100vh; overflow-y: auto; padding-bottom: 120px; }
-        .page.active { display: block; animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        /* فلسفة التصميم: بسيطة، مريحة للعين، وعصرية */
+        body {
+            background-color: #dcdde1; /* رمادي هادئ */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .phone-mockup {
+            width: 320px;
+            height: 600px;
+            background: #f5f6fa;
+            border-radius: 40px;
+            border: 8px solid #2f3640;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 { color: #27ae60; font-size: 24px; margin: 0; }
+        .header p { font-size: 12px; color: #7f8c8d; }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .points { font-size: 32px; font-weight: bold; color: #2980b9; }
+
+        .input-group {
+            background: #eee;
+            padding: 15px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .dummy-input {
+            background: white;
+            height: 40px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            padding-right: 10px;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .btn-prototype {
+            background: #27ae60;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .chart-placeholder {
+            margin-top: 30px;
+            height: 100px;
+            background: linear-gradient(90deg, transparent 50%, rgba(39,174,96,0.1) 50%);
+            background-size: 20px 100%;
+            border-bottom: 2px solid #27ae60;
+            position: relative;
+        }
+        
+        .chart-line {
+            position: absolute;
+            top: 40px; width: 100%; height: 2px;
+            background: #27ae60;
+            transform: rotate(-5deg);
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-right">
+<body>
 
-    <div id="page-home" class="page active">
-        <div class="bg-gradient-to-b from-green-700 to-green-600 p-8 rounded-b-[40px] text-white shadow-xl">
-            <div class="flex justify-between items-center mb-6">
-                <div><h1 class="text-2xl font-bold">أهلاً بك 👋</h1><p class="opacity-80 text-sm italic">بياناتك محفوظة بسحابك الخاص</p></div>
-                <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/30">🎯 نقاطك: <span id="user-points">0</span></div>
-            </div>
-            <div class="bg-white/10 p-6 rounded-3xl border border-white/20 backdrop-blur-md text-center">
-                <p class="text-sm opacity-90 mb-1">إجمالي مصروفاتك</p>
-                <h2 class="text-4xl font-black mb-4"><span id="home-total">0</span> ريال</h2>
-                <div class="grid grid-cols-2 gap-3 mt-2 font-bold text-[10px]">
-                    <div class="bg-white/20 rounded-xl p-2 border border-white/10">🌱 بيئي: <span id="eco-status">🟡</span></div>
-                    <div class="bg-white/20 rounded-xl p-2 border border-white/10">🇸🇦 اجتماعي: <span id="social-status">🟢</span></div>
-                </div>
-            </div>
-        </div>
-        <div class="p-6">
-            <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
-            <div id="transactions-list" class="space-y-4"><div class="text-center py-10 text-gray-400 text-sm">جاري التحميل...</div></div>
-        </div>
+<div class="phone-mockup">
+    <div class="header">
+        <h1>أثر PRO 🌱</h1>
+        <p>التخطيط الأولي للواجهة</p>
     </div>
 
-    <div id="page-add" class="page">
-        <div class="p-6">
-            <h2 class="text-3xl font-black text-gray-800 mb-8">إضافة مصروف</h2>
-            <div class="bg-white p-6 rounded-[30px] shadow-2xl space-y-6">
-                <input type="number" id="input-amount" class="w-full bg-gray-50 p-5 rounded-2xl text-2xl font-bold text-center text-green-700 outline-none" placeholder="0.00">
-                <input type="text" id="input-title" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold" placeholder="وش شريت؟">
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="setCategory('need', this)" class="cat-btn border-2 border-green-500 bg-green-50 p-3 rounded-2xl font-bold text-green-700">احتياج</button>
-                    <button onclick="setCategory('want', this)" class="cat-btn border-2 border-transparent bg-gray-50 p-3 rounded-2xl font-bold text-gray-500">رغبة</button>
-                </div>
-                <div class="space-y-4 bg-gray-50 p-5 rounded-2xl">
-                    <div class="flex justify-between items-center text-sm font-bold"><span>🇸🇦 دعم محلي؟</span><input type="checkbox" id="check-local" class="w-6 h-6 accent-green-600"></div>
-                    <div class="flex justify-between items-center text-sm font-bold"><span>🌱 خيار مستدام؟</span><input type="checkbox" id="check-eco" class="w-6 h-6 accent-green-600"></div>
-                </div>
-                <button onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">تأكيد الأثر ✅</button>
-            </div>
-        </div>
+    <div class="stat-card">
+        <span style="font-size: 14px; color: #666;">نقاطك الحالية</span>
+        <div class="points">100</div>
+        <div style="color: #27ae60; font-size: 12px;">مستدام ✅</div>
     </div>
 
-    <div id="page-reports" class="page">
-        <div class="p-6 space-y-6">
-            <h2 class="text-3xl font-black text-gray-800 mb-6 font-Tajawal">التقارير الذكية 📊</h2>
-            <div class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
-                <h4 class="font-bold text-yellow-800 text-sm mb-1">💡 نصيحة أثر:</h4>
-                <p id="report-fin-text" class="text-[11px] text-yellow-700 font-bold leading-relaxed">أضف مصروفاتك لنحلل استهلاكك الخاص!</p>
-            </div>
-            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-green-500">
-                <h4 class="font-bold text-green-800 text-xs mb-1 uppercase">الأثر الاجتماعي والبيئي</h4>
-                <p id="report-soc-text" class="text-xs text-gray-500 font-bold">قيد التحليل لجهازك..</p>
-            </div>
-        </div>
+    <div class="input-group">
+        <div class="dummy-input">المبلغ...</div>
+        <div class="dummy-input">التصنيف (غذاء، قهوة...)</div>
+        <div class="dummy-input">هل هو ضروري؟</div>
+        <div class="btn-prototype">حفظ الأثر</div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 glass h-24 flex justify-around items-center px-6 border-t z-50">
-        <button onclick="navTo('home', this)" class="nav-btn text-green-600 flex flex-col items-center"><span class="text-xl">🏠</span><span class="text-[10px] font-bold">الرئيسية</span></button>
-        <button onclick="navTo('add', this)" class="nav-btn text-gray-400 flex flex-col items-center"><div class="bg-green-600 text-white p-4 rounded-2xl -mt-14 border-4 border-white"><span class="text-xl">➕</span></div><span class="text-[10px] font-bold">إضافة</span></button>
-        <button onclick="navTo('reports', this)" class="nav-btn text-gray-400 flex flex-col items-center"><span class="text-xl">📊</span><span class="text-[10px] font-bold">التقارير</span></button>
+    <div class="chart-placeholder">
+        <div class="chart-line"></div>
+        <p style="font-size: 10px; text-align: center; margin-top: 80px; color: #7f8c8d;">نموذج تجريبي للرسم البياني</p>
     </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lhjm_eRg8SX_iUw",
-            authDomain: "athar-pro.firebaseapp.com",
-            projectId: "athar-pro",
-            storageBucket: "athar-pro.firebasestorage.app",
-            messagingSenderId: "958994453336",
-            appId: "1:958994453336:web:d4488297a848930285cb2d"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-
-        if (!localStorage.getItem('user_athar_id')) {
-            localStorage.setItem('user_athar_id', 'u_' + Math.random().toString(36).substr(2, 9));
-        }
-        const myId = localStorage.getItem('user_athar_id');
-
-        window.selectedCategory = 'need';
-        window.navTo = (id, btn) => {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-' + id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
-            if(btn) btn.classList.replace('text-gray-400', 'text-green-600');
-        };
-
-        window.setCategory = (cat, btn) => {
-            window.selectedCategory = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
-                b.classList.add('border-transparent', 'bg-gray-50', 'text-gray-500');
-            });
-            btn.classList.replace('border-transparent', 'border-green-500');
-            btn.classList.add('bg-green-50', 'text-green-700');
-        };
-
-        window.processTransaction = async () => {
-            const amt = document.getElementById('input-amount').value;
-            const title = document.getElementById('input-title').value;
-            if(!amt || !title) return alert("اكمل البيانات ✍️");
-
-            try {
-                await addDoc(collection(db, "expenses"), {
-                    userId: myId,
-                    amount: parseFloat(amt),
-                    category: title,
-                    necessity: window.selectedCategory,
-                    isLocal: document.getElementById('check-local').checked,
-                    isEco: document.getElementById('check-eco').checked,
-                    timestamp: new Date()
-                });
-                document.getElementById('input-amount').value = ''; 
-                document.getElementById('input-title').value = '';
-                window.navTo('home', document.querySelectorAll('.nav-btn')[0]);
-            } catch (e) { alert("خطأ في الاتصال بالسحاب"); }
-        };
-
-        // تحديث البيانات والتقارير بناءً على الـ userId
-        onSnapshot(query(collection(db, "expenses"), where("userId", "==", myId)), (snap) => {
-            let total = 0, pts = 0, needs = 0, locals = 0;
-            const list = document.getElementById('transactions-list'); list.innerHTML = '';
-            
-            snap.forEach(doc => {
-                const d = doc.data();
-                total += d.amount;
-                if(d.necessity === 'need') { pts += 10; needs++; } else { pts += 5; }
-                if(d.isLocal) locals++;
-
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
-                card.innerHTML = `<div class="flex items-center gap-4"><div class="bg-green-100 p-3 rounded-2xl text-xl">${d.isEco ? '🌱' : '💰'}</div><div><h4 class="font-black text-gray-800 text-sm">${d.category}</h4><p class="text-[10px] text-gray-400 font-bold">${d.necessity === 'need' ? 'احتياج' : 'رغبة'}</p></div></div><div class="font-black text-green-700 text-sm">${d.amount} ريال</div>`;
-                list.prepend(card);
-            });
-
-            document.getElementById('home-total').innerText = total.toLocaleString();
-            document.getElementById('user-points').innerText = pts;
-            
-            // تحديث نصوص التقارير ديناميكياً
-            if(!snap.empty) {
-                document.getElementById('report-fin-text').innerText = needs > (snap.size / 2) ? "أداء مالي متزن، أغلب مصروفاتك في الاحتياجات! ✅" : "انتبه! رغباتك تفوقت على احتياجاتك هذا الأسبوع. ⚠️";
-                document.getElementById('report-soc-text').innerText = `دعمت المنتج الوطني في ${locals} عمليات شرائية. استمر! 🇸🇦`;
-            }
-            if(snap.empty) list.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">أضف أثرك الأول! ✨</div>';
-        });
-    </script>
-</body>
-</html>
