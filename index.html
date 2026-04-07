@@ -1,12 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر - Athar | النسخة الكاملة</title>
+    <title>أثر - Athar | النسخة السحابية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
     <style>
         body { font-family: 'Tajawal', sans-serif; overflow: hidden; height: 100vh; }
         .page { display: none; height: 100vh; overflow-y: auto; padding-bottom: 120px; }
@@ -54,7 +57,7 @@
 
             <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
             <div id="transactions-list" class="space-y-4">
-                <div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>
+                <div class="text-center py-10 text-gray-400 text-sm">جاري جلب بياناتك من السحابة...</div>
             </div>
         </div>
     </div>
@@ -72,8 +75,8 @@
                     <input type="text" id="input-title" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold" placeholder="مثلاً: قهوة..">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    <button onclick="setCategory('need', this)" class="cat-btn border-2 border-green-500 bg-green-50 p-3 rounded-2xl font-bold text-green-700">احتياج</button>
-                    <button onclick="setCategory('want', this)" class="cat-btn border-2 border-transparent bg-gray-50 p-3 rounded-2xl font-bold text-gray-500">رغبة</button>
+                    <button onclick="setCategory('need', this)" id="btn-need" class="cat-btn border-2 border-green-500 bg-green-50 p-3 rounded-2xl font-bold text-green-700">احتياج</button>
+                    <button onclick="setCategory('want', this)" id="btn-want" class="cat-btn border-2 border-transparent bg-gray-50 p-3 rounded-2xl font-bold text-gray-500">رغبة</button>
                 </div>
                 <div class="space-y-4 bg-gray-50 p-5 rounded-2xl border border-gray-100">
                     <div class="flex items-center justify-between text-sm font-bold">
@@ -85,7 +88,7 @@
                         <input type="checkbox" id="check-eco" class="w-6 h-6 accent-green-600">
                     </div>
                 </div>
-                <button onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">رصد الأثر وتأكيد ✅</button>
+                <button onclick="processTransaction()" id="btn-save" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">رصد الأثر وتأكيد ✅</button>
             </div>
         </div>
     </div>
@@ -93,7 +96,6 @@
     <div id="page-reports" class="page">
         <div class="p-6 space-y-6">
             <h2 class="text-3xl font-black text-gray-800 mb-6">التقارير الذكية</h2>
-            
             <div id="suggestion-box" class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
                 <h4 class="font-bold text-yellow-800 text-sm mb-1">💡 الاقتراح الذكي:</h4>
                 <p id="suggestion-text" class="text-xs text-yellow-700 leading-relaxed font-bold">ابدأ بإدخال مصروفاتك لنقوم بتحليلها وتقديم بدائل أوفر لك!</p>
@@ -143,39 +145,66 @@
     </div>
 
     <script>
+        // --- إعدادات Firebase الخاصة بك ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBBQ6UpoyRUh_yt6sTLEpdFF1oESw_3YWo",
+            authDomain: "athar-8860c.firebaseapp.com",
+            projectId: "athar-8860c",
+            storageBucket: "athar-8860c.firebasestorage.app",
+            messagingSenderId: "379470747907",
+            appId: "1:379470747907:web:2f0ef3474e5cd614f2f136"
+        };
+
+        // تشغيل Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let total = 0;
         let points = 0;
         let selectedCategory = 'need';
 
-        // دالة التنقل بين الصفحات (إصلاح كامل)
-        function navTo(pageId, btn) {
-            // إخفاء كافة الصفحات
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            // إظهار الصفحة المطلوبة
-            const activePage = document.getElementById('page-' + pageId);
-            if(activePage) activePage.classList.add('active');
+        // تحميل البيانات عند البدء
+        window.onload = loadData;
 
-            // تحديث ألوان الأزرار
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
-            if(btn) {
-                btn.classList.replace('text-gray-400', 'text-green-600');
-            }
-        }
-
-        // اختيار التصنيف (احتياج/رغبة)
-        function setCategory(cat, btn) {
-            selectedCategory = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => {
-                b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
-                b.classList.add('border-transparent', 'bg-gray-50', 'text-gray-500');
+        async function loadData() {
+            // جلب الإحصائيات (الإجمالي والنقاط)
+            db.collection("userStats").doc("totals").onSnapshot((doc) => {
+                if (doc.exists) {
+                    total = doc.data().total || 0;
+                    points = doc.data().points || 0;
+                    document.getElementById('home-total').innerText = total.toLocaleString();
+                    document.getElementById('user-points').innerText = points;
+                }
             });
-            btn.classList.replace('border-transparent', 'border-green-500');
-            btn.classList.replace('bg-gray-50', 'bg-green-50');
-            btn.classList.replace('text-gray-500', 'text-green-700');
+
+            // جلب قائمة العمليات وتحديثها تلقائياً
+            db.collection("transactions").orderBy("date", "desc").limit(20).onSnapshot((snapshot) => {
+                const list = document.getElementById('transactions-list');
+                list.innerHTML = '';
+                if (snapshot.empty) {
+                    list.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>';
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="bg-green-100 p-3 rounded-2xl text-xl">${data.isEco ? '🌱' : '💰'}</div>
+                            <div>
+                                <h4 class="font-black text-gray-800 text-sm">${data.title}</h4>
+                                <p class="text-[10px] text-gray-400 font-bold italic">${data.category === 'need' ? 'احتياج' : 'رغبة'} ${data.isLocal ? '• 🇸🇦 محلي' : ''}</p>
+                            </div>
+                        </div>
+                        <div class="text-left font-black text-green-700 text-sm">${data.amount} ريال</div>
+                    `;
+                    list.appendChild(card);
+                });
+            });
         }
 
-        // معالجة إضافة المصروف (نظام النقاط والذكاء)
-        function processTransaction() {
+        async function processTransaction() {
             const amountInput = document.getElementById('input-amount');
             const titleInput = document.getElementById('input-title');
             const amount = parseFloat(amountInput.value);
@@ -185,56 +214,63 @@
 
             if (!amount || !title) return alert("عبّي البيانات كاملة يا بطل! 😊");
 
-            // 1. تحديث الإجمالي
-            total += amount;
-            document.getElementById('home-total').innerText = total.toLocaleString();
+            const btn = document.getElementById('btn-save');
+            btn.disabled = true;
+            btn.innerText = "جاري الحفظ...";
 
-            // 2. نظام النقاط المطور (Gamification)
-            let earned = (selectedCategory === 'need' && (isLocal || isEco)) ? 10 : (selectedCategory === 'want' ? 0 : 5);
-            points += earned;
-            document.getElementById('user-points').innerText = points;
+            const earned = (selectedCategory === 'need' && (isLocal || isEco)) ? 10 : (selectedCategory === 'want' ? 0 : 5);
+            
+            try {
+                // 1. إضافة العملية
+                await db.collection("transactions").add({
+                    title, amount, category: selectedCategory, isLocal, isEco, date: Date.now()
+                });
 
-            // 3. إضافة الكرت لقائمة العمليات
-            const list = document.getElementById('transactions-list');
-            if (list.innerHTML.includes('لا يوجد بيانات')) list.innerHTML = '';
+                // 2. تحديث الإحصائيات
+                await db.collection("userStats").doc("totals").set({
+                    total: total + amount,
+                    points: points + earned
+                });
 
-            const card = document.createElement('div');
-            card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
-            card.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="bg-green-100 p-3 rounded-2xl text-xl">${isEco ? '🌱' : '💰'}</div>
-                    <div>
-                        <h4 class="font-black text-gray-800 text-sm">${title}</h4>
-                        <p class="text-[10px] text-gray-400 font-bold italic">${selectedCategory === 'need' ? 'احتياج' : 'رغبة'} ${isLocal ? '• 🇸🇦 محلي' : ''}</p>
-                    </div>
-                </div>
-                <div class="text-left font-black text-green-700 text-sm">${amount} ريال</div>
-            `;
-            list.prepend(card);
+                // 3. تحديث واجهة التقارير (محلياً)
+                updateUIFeedback(title, amount, isLocal, isEco);
 
-            // 4. الاقتراح الذكي وتحديث التقارير (ذكاء اصطناعي محاكي)
-            const suggestBox = document.getElementById('suggestion-text');
-            if(title.includes("قهوة") || title.includes("كوفي")) {
-                const saving = amount * 3 * 4;
-                suggestBox.innerHTML = `قهوة يومية بـ ${amount} ريال؟ لو خففتها لـ 3 مرات بالأسبوع توفر <span class='text-orange-600 underline'>${saving} ريال بالشهر</span>! استثمرها في مستقبلك ☕`;
-            } else {
-                suggestBox.innerText = "أداء رائع! دعمك للمنتج المحلي يرفع من نقاط أثرك الوطني. استمر!";
+                // تنظيف
+                amountInput.value = ''; titleInput.value = '';
+                navTo('home', document.querySelectorAll('.nav-btn')[0]);
+            } catch (e) {
+                alert("خطأ في الاتصال بالسحابة!");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "رصد الأثر وتأكيد ✅";
             }
+        }
 
-            document.getElementById('report-fin-text').innerText = (selectedCategory === 'want') ? "لاحظنا زيادة في صرف الرغبات، حاول موازنة ميزانيتك غداً." : "صرف ممتاز وواعٍ يركز على احتياجاتك الأساسية.";
-            document.getElementById('report-soc-text').innerText = isLocal ? "دعمك للمنتج المحلي ينمي اقتصادنا الوطني 🇸🇦" : "فكر في دعم التاجر المحلي في قراراتك القادمة لرفع أثرك الاجتماعي.";
-            
-            // تحديث الحالات في الواجهة
-            document.getElementById('eco-status').innerText = isEco ? "🟢 مستدام" : "🟡 متوسط";
-            document.getElementById('social-status').innerText = isLocal ? "🟢 عالي" : "🟡 متوسط";
+        function updateUIFeedback(title, amount, isLocal, isEco) {
+            const suggestBox = document.getElementById('suggestion-text');
+            if(title.includes("قهوة")) {
+                suggestBox.innerHTML = `لو خففت القهوة الخارجية توفر <span class='text-orange-600 underline'>${amount * 12} ريال شهرياً</span>! ☕`;
+            }
+            document.getElementById('report-fin-text').innerText = selectedCategory === 'want' ? "انتبه لصرف الرغبات!" : "صرف ذكي للاحتياجات.";
+            document.getElementById('report-soc-text').innerText = isLocal ? "أثرك الوطني عظيم 🇸🇦" : "جرب البديل المحلي للمرة القادمة.";
+        }
 
-            // تنظيف المدخلات والرجوع
-            amountInput.value = ''; titleInput.value = '';
-            document.getElementById('check-local').checked = false;
-            document.getElementById('check-eco').checked = false;
-            
-            navTo('home', document.querySelectorAll('.nav-btn')[0]);
-            alert("تم رصد الأثر بنجاح! شاهد نقاطك والتقارير الجديدة 📊");
+        function navTo(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
+            if(btn) btn.classList.replace('text-gray-400', 'text-green-600');
+        }
+
+        function setCategory(cat, btn) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
+                b.classList.add('border-transparent', 'bg-gray-50', 'text-gray-500');
+            });
+            btn.classList.replace('border-transparent', 'border-green-500');
+            btn.classList.replace('bg-gray-50', 'bg-green-50');
+            btn.classList.replace('text-gray-500', 'text-green-700');
         }
     </script>
 </body>
