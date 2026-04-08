@@ -53,7 +53,7 @@
 
             <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
             <div id="transactions-list" class="space-y-4">
-                <div class="text-center py-10 text-gray-400 text-sm">جاري التحميل من السحاب...</div>
+                <div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>
             </div>
         </div>
     </div>
@@ -92,34 +92,9 @@
     <div id="page-reports" class="page">
         <div class="p-6 space-y-6">
             <h2 class="text-3xl font-black text-gray-800 mb-6">التقارير الذكية</h2>
-            
             <div id="suggestion-box" class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
                 <h4 class="font-bold text-yellow-800 text-sm mb-1">💡 الاقتراح الذكي:</h4>
                 <p id="suggestion-text" class="text-xs text-yellow-700 leading-relaxed font-bold">ابدأ بإدخال مصروفاتك لنقوم بتحليلها وتقديم بدائل أوفر لك!</p>
-            </div>
-
-            <div class="bg-white p-5 rounded-[30px] shadow-sm border border-gray-100">
-                <h4 class="font-bold text-gray-800 text-sm mb-4">🏆 تحديات الأسبوع:</h4>
-                <div class="space-y-3">
-                    <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
-                        <input type="checkbox" class="w-4 h-4 accent-green-600">
-                        <span class="text-[11px] font-bold text-gray-600">أسبوع بدون صرف كمالي (رغبات)</span>
-                    </div>
-                    <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
-                        <input type="checkbox" class="w-4 h-4 accent-green-600" checked>
-                        <span class="text-[11px] font-bold text-gray-600">ادعم منتج محلي مرة واحدة 🇸🇦</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-blue-500">
-                <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase">الأثر المالي</h4>
-                <p id="report-fin-text" class="text-xs text-gray-500 font-bold italic leading-relaxed">قيد الجمع..</p>
-            </div>
-            
-            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-green-500">
-                <h4 class="font-bold text-green-800 text-xs mb-1 uppercase">الأثر الاجتماعي والبيئي</h4>
-                <p id="report-soc-text" class="text-xs text-gray-500 font-bold italic leading-relaxed tracking-tight">قيد الجمع..</p>
             </div>
         </div>
     </div>
@@ -145,15 +120,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // إعدادات مشروعك Athar اللي في الصورة
+        // إعدادات Athar-Pro الخاصة بكِ يا هيا
         const firebaseConfig = {
-            apiKey: "AIzaSyCsIr0rEP8zfsRYdebkwSxatA9tCrHGRmQ",
-            authDomain: "athar-d393a.firebaseapp.com",
-            projectId: "athar-d393a",
-            storageBucket: "athar-d393a.firebasestorage.app",
-            messagingSenderId: "776148647810",
-            appId: "1:776148647810:web:fc9f6e7b225c12a146999b",
-            measurementId: "G-Y8J5NL8FTY"
+            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3Lhjm_eRg8SX_iUw",
+            authDomain: "athar-pro.firebaseapp.com",
+            projectId: "athar-pro",
+            storageBucket: "athar-pro.firebasestorage.app",
+            messagingSenderId: "958994453336",
+            appId: "1:958994453336:web:d4488297a848930285cb2d",
+            measurementId: "G-R9JJB10JRK"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -163,20 +138,14 @@
         let points = 0;
         let selectedCategory = 'need';
 
-        // جعل الدوال متاحة للـ HTML (window)
-        window.navTo = function(pageId, btn) {
+        window.navTo = (pageId, btn) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const activePage = document.getElementById('page-' + pageId);
-            if(activePage) activePage.classList.add('active');
-
+            document.getElementById('page-' + pageId).classList.add('active');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
-            if(btn) {
-                btn.classList.replace('text-gray-400', 'text-green-600');
-            }
-            if(pageId === 'home') loadTransactions();
-        }
+            if(btn) btn.classList.replace('text-gray-400', 'text-green-600');
+        };
 
-        window.setCategory = function(cat, btn) {
+        window.setCategory = (cat, btn) => {
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => {
                 b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
@@ -185,104 +154,55 @@
             btn.classList.replace('border-transparent', 'border-green-500');
             btn.classList.replace('bg-gray-50', 'bg-green-50');
             btn.classList.replace('text-gray-500', 'text-green-700');
-        }
+        };
 
-        // دالة جلب البيانات من السحاب لتعرض في القائمة
-        async function loadTransactions() {
-            const list = document.getElementById('transactions-list');
-            const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
-            const querySnapshot = await getDocs(q);
-            
-            list.innerHTML = '';
-            total = 0; points = 0;
-
-            querySnapshot.forEach((doc) => {
-                const data = doc.data();
-                total += data.amount;
-                points += data.pointsEarned || 0;
-
-                const card = document.createElement('div');
-                card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
-                card.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="bg-green-100 p-3 rounded-2xl text-xl">${data.isEco ? '🌱' : '💰'}</div>
-                        <div>
-                            <h4 class="font-black text-gray-800 text-sm">${data.title}</h4>
-                            <p class="text-[10px] text-gray-400 font-bold italic">${data.category === 'need' ? 'احتياج' : 'رغبة'} ${data.isLocal ? '• 🇸🇦 محلي' : ''}</p>
-                        </div>
-                    </div>
-                    <div class="text-left font-black text-green-700 text-sm">${data.amount} ريال</div>
-                `;
-                list.appendChild(card);
-            });
-
-            document.getElementById('home-total').innerText = total.toLocaleString();
-            document.getElementById('user-points').innerText = points;
-        }
-
-        // دالة المعالجة المحدثة لترفع البيانات للسحاب
-        window.processTransaction = async function() {
+        window.processTransaction = async () => {
             const amountInput = document.getElementById('input-amount');
             const titleInput = document.getElementById('input-title');
-            const amount = parseFloat(amountInput.value);
-            const title = titleInput.value;
-            const isLocal = document.getElementById('check-local').checked;
-            const isEco = document.getElementById('check-eco').checked;
             const saveBtn = document.getElementById('save-btn');
+            
+            if (!amountInput.value || !titleInput.value) return alert("عبّي البيانات كاملة يا هيا! 😊");
 
-            if (!amount || !title) return alert("عبّي البيانات كاملة يا بطل! 😊");
-
-            saveBtn.disabled = true;
-            saveBtn.innerText = "جاري الحفظ في السحاب... ☁️";
-
-            let earned = (selectedCategory === 'need' && (isLocal || isEco)) ? 10 : (selectedCategory === 'want' ? 0 : 5);
+            const data = {
+                amount: parseFloat(amountInput.value),
+                title: titleInput.value,
+                category: selectedCategory,
+                isLocal: document.getElementById('check-local').checked,
+                isEco: document.getElementById('check-eco').checked,
+                timestamp: new Date()
+            };
 
             try {
-                // الرفع لـ Firebase
-                await addDoc(collection(db, "transactions"), {
-                    title: title,
-                    amount: amount,
-                    category: selectedCategory,
-                    isLocal: isLocal,
-                    isEco: isEco,
-                    pointsEarned: earned,
-                    createdAt: new Date()
-                });
-
-                // تحديث التقارير (منطقك الأصلي كما هو)
-                const suggestBox = document.getElementById('suggestion-text');
-                if(title.includes("قهوة") || title.includes("كوفي")) {
-                    const saving = amount * 3 * 4;
-                    suggestBox.innerHTML = `قهوة يومية بـ ${amount} ريال؟ لو خففتها لـ 3 مرات بالأسبوع توفر <span class='text-orange-600 underline'>${saving} ريال بالشهر</span>! استثمرها في مستقبلك ☕`;
-                } else {
-                    suggestBox.innerText = "أداء رائع! دعمك للمنتج المحلي يرفع من نقاط أثرك الوطني. استمر!";
-                }
-
-                document.getElementById('report-fin-text').innerText = (selectedCategory === 'want') ? "لاحظنا زيادة في صرف الرغبات، حاول موازنة ميزانيتك غداً." : "صرف ممتاز وواعٍ يركز على احتياجاتك الأساسية.";
-                document.getElementById('report-soc-text').innerText = isLocal ? "دعمك للمنتج المحلي ينمي اقتصادنا الوطني 🇸🇦" : "فكر في دعم التاجر المحلي في قراراتك القادمة لرفع أثرك الاجتماعي.";
-                document.getElementById('eco-status').innerText = isEco ? "🟢 مستدام" : "🟡 متوسط";
-                document.getElementById('social-status').innerText = isLocal ? "🟢 عالي" : "🟡 متوسط";
-
-                // تصفير الخانات
-                amountInput.value = ''; titleInput.value = '';
-                document.getElementById('check-local').checked = false;
-                document.getElementById('check-eco').checked = false;
-                saveBtn.disabled = false;
-                saveBtn.innerText = "رصد الأثر وتأكيد ✅";
-
-                navTo('home', document.querySelectorAll('.nav-btn')[0]);
-                alert("تم رصد الأثر وحفظه سحابياً! 📊☁️");
-
+                saveBtn.innerText = "جاري الحفظ في السحاب... ☁️";
+                saveBtn.disabled = true;
+                
+                await addDoc(collection(db, "transactions"), data);
+                
+                alert("تم رصد الأثر بنجاح! ✅");
+                location.reload(); 
             } catch (e) {
                 console.error("Error: ", e);
-                alert("فشل الاتصال بالسحاب، تأكد من إعدادات Firestore Rules");
-                saveBtn.disabled = false;
+                alert("حصل خطأ في الاتصال بالسحاب!");
                 saveBtn.innerText = "رصد الأثر وتأكيد ✅";
+                saveBtn.disabled = false;
             }
-        }
+        };
 
-        // تشغيل الجلب عند أول فتح للموقع
-        loadTransactions();
+        // تحميل البيانات عند فتح الصفحة
+        const querySnapshot = await getDocs(query(collection(db, "transactions"), orderBy("timestamp", "desc")));
+        const list = document.getElementById('transactions-list');
+        list.innerHTML = '';
+        
+        querySnapshot.forEach((doc) => {
+            const item = doc.data();
+            total += item.amount;
+            const card = `<div class="bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border-r-4 ${item.category === 'need' ? 'border-green-500' : 'border-blue-500'}">
+                <div><h4 class="font-bold text-gray-800">${item.title}</h4><p class="text-[10px] text-gray-400">${item.category === 'need' ? 'احتياج' : 'رغبة'} ${item.isLocal ? '• محلي 🇸🇦' : ''}</p></div>
+                <div class="text-left"><p class="font-black text-lg text-gray-800">${item.amount} <span class="text-[10px]">ريال</span></p></div>
+            </div>`;
+            list.innerHTML += card;
+        });
+        document.getElementById('home-total').innerText = total.toLocaleString();
     </script>
 </body>
 </html>
