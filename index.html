@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر - Athar | النسخة الكاملة</title>
+    <title>أثر - Athar | النسخة السحابية</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <style>
@@ -21,39 +21,20 @@
             <div class="flex justify-between items-center mb-6">
                 <div>
                     <h1 class="text-2xl font-bold">أهلاً بك في أثر 👋</h1>
-                    <p class="opacity-80 text-sm italic">وعيك المالي يبدأ من هنا</p>
                 </div>
                 <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/30">
                     🎯 نقاط الأثر: <span id="user-points">0</span>
                 </div>
             </div>
-            
             <div class="bg-white/10 p-6 rounded-3xl border border-white/20 backdrop-blur-md">
                 <p class="text-sm opacity-90 mb-1 text-center">إجمالي المصروفات</p>
                 <h2 class="text-4xl font-black mb-4 text-center"><span id="home-total">0</span> <span class="text-lg">ريال</span></h2>
-                <div class="grid grid-cols-2 gap-3 mt-2">
-                    <div class="bg-white/20 rounded-xl p-2 text-center border border-white/10 text-[10px]">
-                        <p class="font-bold opacity-70">الأثر البيئي</p>
-                        <span id="eco-status" class="font-bold">🟡 متوسط</span>
-                    </div>
-                    <div class="bg-white/20 rounded-xl p-2 text-center border border-white/10 text-[10px]">
-                        <p class="font-bold opacity-70">الأثر الاجتماعي</p>
-                        <span id="social-status" class="font-bold">🟢 ممتاز</span>
-                    </div>
-                </div>
             </div>
         </div>
-
         <div class="p-6">
-            <h3 class="font-bold text-gray-800 mb-3 text-sm">أثر للمجتمع والاستدامة 🌍</h3>
-            <div class="flex gap-3 overflow-x-auto pb-4">
-                <div class="min-w-[140px] bg-blue-50 p-3 rounded-2xl text-[11px] border border-blue-100 font-bold text-blue-800 leading-tight">🇸🇦 دعم محلي:<br><span class="font-normal opacity-70 text-[10px]">اقتراح متاجر وطنية.</span></div>
-                <div class="min-w-[140px] bg-green-50 p-3 rounded-2xl text-[11px] border border-green-100 font-bold text-green-800 leading-tight">🌱 استدامة:<br><span class="font-normal opacity-70 text-[10px]">منتجات صديقة للبيئة.</span></div>
-            </div>
-
-            <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
+            <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة (من السحاب)</h3>
             <div id="transactions-list" class="space-y-4">
-                <div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>
+                <div class="text-center py-10 text-gray-400 text-sm">جاري جلب البيانات...</div>
             </div>
         </div>
     </div>
@@ -63,11 +44,11 @@
             <h2 class="text-3xl font-black text-gray-800 mb-8">إضافة مصروف</h2>
             <div class="bg-white p-6 rounded-[30px] shadow-2xl space-y-6 border border-gray-100">
                 <div>
-                    <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">كم صرفت؟</label>
+                    <label class="block text-sm font-bold text-gray-500 mb-2">كم صرفت؟</label>
                     <input type="number" id="input-amount" class="w-full bg-gray-50 p-5 rounded-2xl text-2xl font-bold text-center text-green-700 outline-none" placeholder="0.00">
                 </div>
                 <div>
-                    <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">في ماذا صرفت؟</label>
+                    <label class="block text-sm font-bold text-gray-500 mb-2">في ماذا صرفت؟</label>
                     <input type="text" id="input-title" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold" placeholder="مثلاً: قهوة..">
                 </div>
                 <div class="grid grid-cols-2 gap-3">
@@ -79,33 +60,8 @@
                         <span>دعم منتج محلي؟ 🇸🇦</span>
                         <input type="checkbox" id="check-local" class="w-6 h-6 accent-green-600">
                     </div>
-                    <div class="flex items-center justify-between text-sm font-bold">
-                        <span>خيار مستدام؟ 🌱</span>
-                        <input type="checkbox" id="check-eco" class="w-6 h-6 accent-green-600">
-                    </div>
                 </div>
-                <button onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">رصد الأثر وتأكيد ✅</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="page-reports" class="page">
-        <div class="p-6 space-y-6">
-            <h2 class="text-3xl font-black text-gray-800 mb-6">التقارير الذكية</h2>
-            
-            <div id="suggestion-box" class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
-                <h4 class="font-bold text-yellow-800 text-sm mb-1">💡 الاقتراح الذكي:</h4>
-                <p id="suggestion-text" class="text-xs text-yellow-700 leading-relaxed font-bold">ابدأ بإدخال مصروفاتك لنقوم بتحليلها وتقديم بدائل أوفر لك!</p>
-            </div>
-
-            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-blue-500">
-                <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase">الأثر المالي</h4>
-                <p id="report-fin-text" class="text-xs text-gray-500 font-bold italic leading-relaxed">قيد الجمع..</p>
-            </div>
-            
-            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-green-500">
-                <h4 class="font-bold text-green-800 text-xs mb-1 uppercase">الأثر الاجتماعي والبيئي</h4>
-                <p id="report-soc-text" class="text-xs text-gray-500 font-bold italic leading-relaxed tracking-tight">قيد الجمع..</p>
+                <button id="save-btn" onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">رصد الأثر سحابياً ☁️</button>
             </div>
         </div>
     </div>
@@ -121,29 +77,37 @@
             </div>
             <span class="text-[10px] font-bold mt-1">إضافة</span>
         </button>
-        <button onclick="navTo('reports', this)" class="nav-btn text-gray-400 flex flex-col items-center">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-            <span class="text-[10px] font-bold mt-1 text-center leading-none">التقارير</span>
-        </button>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // إعدادات مشروعك (من الصورة)
+        const firebaseConfig = {
+            apiKey: "AIzaSyCsIr0rEP8zfsRYdebkwSxatA9tCrHGRmQ",
+            authDomain: "athar-d393a.firebaseapp.com",
+            projectId: "athar-d393a",
+            storageBucket: "athar-d393a.firebasestorage.app",
+            messagingSenderId: "776148647810",
+            appId: "1:776148647810:web:fc9f6e7b225c12a146999b",
+            measurementId: "G-Y8J5NL8FTY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
         let total = 0;
-        let points = 0;
         let selectedCategory = 'need';
 
-        function navTo(pageId, btn) {
+        // جعل الدوال متاحة عالمياً
+        window.navTo = function(pageId, btn) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const activePage = document.getElementById('page-' + pageId);
-            if(activePage) activePage.classList.add('active');
+            document.getElementById('page-' + pageId).classList.add('active');
+            if (pageId === 'home') loadTransactions();
+        };
 
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
-            if(btn) {
-                btn.classList.replace('text-gray-400', 'text-green-600');
-            }
-        }
-
-        function setCategory(cat, btn) {
+        window.setCategory = function(cat, btn) {
             selectedCategory = cat;
             document.querySelectorAll('.cat-btn').forEach(b => {
                 b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
@@ -152,68 +116,74 @@
             btn.classList.replace('border-transparent', 'border-green-500');
             btn.classList.replace('bg-gray-50', 'bg-green-50');
             btn.classList.replace('text-gray-500', 'text-green-700');
-        }
+        };
 
-        function processTransaction() {
+        // دالة الحفظ السحابي
+        window.processTransaction = async function() {
             const amountInput = document.getElementById('input-amount');
             const titleInput = document.getElementById('input-title');
-            const amount = parseFloat(amountInput.value);
-            const title = titleInput.value;
-            const isLocal = document.getElementById('check-local').checked;
-            const isEco = document.getElementById('check-eco').checked;
+            const saveBtn = document.getElementById('save-btn');
 
-            if (!amount || !title) return alert("عبّي البيانات كاملة يا بطل! 😊");
+            if (!amountInput.value || !titleInput.value) return alert("عبّي البيانات!");
 
-            total += amount;
-            document.getElementById('home-total').innerText = total.toLocaleString();
+            saveBtn.innerText = "جاري الرفع للسحاب... ☁️";
+            saveBtn.disabled = true;
 
-            let earned = (selectedCategory === 'need' && (isLocal || isEco)) ? 10 : (selectedCategory === 'want' ? 0 : 5);
-            points += earned;
-            document.getElementById('user-points').innerText = points;
-
-            const list = document.getElementById('transactions-list');
-            if (list.innerHTML.includes('لا يوجد بيانات')) list.innerHTML = '';
-
-            const card = document.createElement('div');
-            card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
-            card.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="bg-green-100 p-3 rounded-2xl text-xl">${isEco ? '🌱' : '💰'}</div>
-                    <div>
-                        <h4 class="font-black text-gray-800 text-sm">${title}</h4>
-                        <p class="text-[10px] text-gray-400 font-bold italic">${selectedCategory === 'need' ? 'احتياج' : 'رغبة'} ${isLocal ? '• 🇸🇦 محلي' : ''}</p>
-                    </div>
-                </div>
-                <div class="text-left font-black text-green-700 text-sm">${amount} ريال</div>
-            `;
-            list.prepend(card);
-
-            const suggestBox = document.getElementById('suggestion-text');
-            if(title.includes("قهوة") || title.includes("كوفي")) {
-                const saving = amount * 3 * 4;
-                suggestBox.innerHTML = `قهوة يومية بـ ${amount} ريال؟ لو خففتها لـ 3 مرات بالأسبوع توفر <span class='text-orange-600 underline'>${saving} ريال بالشهر</span>! استثمرها في مستقبلك ☕`;
-            } else {
-                suggestBox.innerText = "أداء رائع! دعمك للمنتج المحلي يرفع من نقاط أثرك الوطني. استمر!";
+            try {
+                await addDoc(collection(db, "transactions"), {
+                    title: titleInput.value,
+                    amount: parseFloat(amountInput.value),
+                    category: selectedCategory,
+                    isLocal: document.getElementById('check-local').checked,
+                    createdAt: new Date()
+                });
+                
+                amountInput.value = ''; titleInput.value = '';
+                saveBtn.innerText = "تم الحفظ بنجاح! ✅";
+                setTimeout(() => {
+                    saveBtn.disabled = false;
+                    saveBtn.innerText = "رصد الأثر سحابياً ☁️";
+                    navTo('home');
+                }, 1000);
+            } catch (e) {
+                console.error("خطأ: ", e);
+                alert("حدث خطأ في الاتصال بالسحاب");
             }
+        };
 
-            document.getElementById('report-fin-text').innerText = (selectedCategory === 'want') ? "لاحظنا زيادة في صرف الرغبات، حاول موازنة ميزانيتك غداً." : "صرف ممتاز وواعٍ يركز على احتياجاتك الأساسية.";
-            document.getElementById('report-soc-text').innerText = isLocal ? "دعمك للمنتج المحلي ينمي اقتصادنا الوطني 🇸🇦" : "فكر في دعم التاجر المحلي في قراراتك القادمة لرفع أثرك الاجتماعي.";
+        // دالة جلب البيانات من السحاب
+        async function loadTransactions() {
+            const list = document.getElementById('transactions-list');
+            list.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">جاري التحديث...</div>';
             
-            document.getElementById('eco-status').innerText = isEco ? "🟢 مستدام" : "🟡 متوسط";
-            document.getElementById('social-status').innerText = isLocal ? "🟢 عالي" : "🟡 متوسط";
+            const q = query(collection(db, "transactions"), orderBy("createdAt", "desc"));
+            const querySnapshot = await getDocs(q);
+            
+            list.innerHTML = '';
+            total = 0;
 
-            amountInput.value = ''; titleInput.value = '';
-            document.getElementById('check-local').checked = false;
-            document.getElementById('check-eco').checked = false;
-            
-            // التعديل الوحيد هنا: نقلنا الانتقال للصفحة قبل التنبيه عشان ما يعلق
-            navTo('home', document.querySelectorAll('.nav-btn')[0]);
-            
-            // استخدمت setTimeout عشان يطلع التنبيه بعد ما ينتقل للموقع بلمح البصر
-            setTimeout(() => {
-                alert("تم رصد الأثر بنجاح! شاهد نقاطك والتقارير الجديدة 📊");
-            }, 100);
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                total += data.amount;
+                const card = document.createElement('div');
+                card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="bg-green-100 p-3 rounded-2xl text-xl">💰</div>
+                        <div>
+                            <h4 class="font-black text-gray-800 text-sm">${data.title}</h4>
+                            <p class="text-[10px] text-gray-400 font-bold italic">${data.category === 'need' ? 'احتياج' : 'رغبة'}</p>
+                        </div>
+                    </div>
+                    <div class="text-left font-black text-green-700 text-sm">${data.amount} ريال</div>
+                `;
+                list.appendChild(card);
+            });
+            document.getElementById('home-total').innerText = total.toLocaleString();
         }
+
+        // تحميل أولي للبيانات
+        loadTransactions();
     </script>
 </body>
 </html>
