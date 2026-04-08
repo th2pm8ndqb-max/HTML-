@@ -3,143 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أثر - Athar | النسخة الأصلية</title>
+    <title>أثر - Athar | النسخة الكاملة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
     <style>
-        body { font-family: 'Tajawal', sans-serif; overflow: hidden; height: 100vh; background-color: #f9fafb; }
-        .page { display: none; height: 100vh; overflow-y: auto; padding-bottom: 100px; }
-        .page.active { display: block; }
-        .nav-active { color: #16a34a !important; font-weight: 900; }
+        body { font-family: 'Tajawal', sans-serif; overflow: hidden; height: 100vh; }
+        .page { display: none; height: 100vh; overflow-y: auto; padding-bottom: 120px; }
+        .page.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 text-right">
 
     <div id="page-home" class="page active">
-        <div class="bg-green-700 p-8 rounded-b-[40px] text-white shadow-lg">
+        <div class="bg-gradient-to-b from-green-700 to-green-600 p-8 rounded-b-[40px] text-white shadow-xl">
             <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold">أهلاً بك في أثر 👋</h1>
+                <div>
+                    <h1 class="text-2xl font-bold">أهلاً بك في أثر 👋</h1>
+                    <p class="opacity-80 text-sm italic">وعيك المالي يبدأ من هنا</p>
+                </div>
                 <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold border border-white/30">
                     🎯 نقاط الأثر: <span id="user-points">0</span>
                 </div>
             </div>
-            <div class="bg-white/10 p-6 rounded-3xl border border-white/20 text-center">
-                <p class="text-sm opacity-90 mb-1">إجمالي المصروفات</p>
-                <h2 class="text-4xl font-black"><span id="home-total">0</span> <span class="text-lg">ريال</span></h2>
+            
+            <div class="bg-white/10 p-6 rounded-3xl border border-white/20 backdrop-blur-md">
+                <p class="text-sm opacity-90 mb-1 text-center">إجمالي المصروفات</p>
+                <h2 class="text-4xl font-black mb-4 text-center"><span id="home-total">0</span> <span class="text-lg">ريال</span></h2>
+                <div class="grid grid-cols-2 gap-3 mt-2">
+                    <div class="bg-white/20 rounded-xl p-2 text-center border border-white/10 text-[10px]">
+                        <p class="font-bold opacity-70">الأثر البيئي</p>
+                        <span id="eco-status" class="font-bold">🟡 متوسط</span>
+                    </div>
+                    <div class="bg-white/20 rounded-xl p-2 text-center border border-white/10 text-[10px]">
+                        <p class="font-bold opacity-70">الأثر الاجتماعي</p>
+                        <span id="social-status" class="font-bold">🟢 ممتاز</span>
+                    </div>
+                </div>
             </div>
         </div>
+
         <div class="p-6">
+            <h3 class="font-bold text-gray-800 mb-3 text-sm">أثر للمجتمع والاستدامة 🌍</h3>
+            <div class="flex gap-3 overflow-x-auto pb-4">
+                <div class="min-w-[140px] bg-blue-50 p-3 rounded-2xl text-[11px] border border-blue-100 font-bold text-blue-800 leading-tight">🇸🇦 دعم محلي:<br><span class="font-normal opacity-70 text-[10px]">اقتراح متاجر وطنية.</span></div>
+                <div class="min-w-[140px] bg-green-50 p-3 rounded-2xl text-[11px] border border-green-100 font-bold text-green-800 leading-tight">🌱 استدامة:<br><span class="font-normal opacity-70 text-[10px]">منتجات صديقة للبيئة.</span></div>
+            </div>
+
             <h3 class="font-bold text-gray-800 text-lg mb-4">تحركاتك الأخيرة</h3>
-            <div id="transactions-list" class="space-y-4 text-center py-10 text-gray-400 text-sm">جاري التحميل...</div>
+            <div id="transactions-list" class="space-y-4">
+                </div>
         </div>
     </div>
 
     <div id="page-add" class="page">
         <div class="p-6">
             <h2 class="text-3xl font-black text-gray-800 mb-8">إضافة مصروف</h2>
-            <div class="bg-white p-6 rounded-[30px] shadow-sm space-y-6">
-                <input type="number" id="input-amount" class="w-full bg-gray-50 p-5 rounded-2xl text-2xl font-bold text-center outline-none" placeholder="0.00">
-                <input type="text" id="input-title" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold" placeholder="في ماذا صرفت؟">
+            <div class="bg-white p-6 rounded-[30px] shadow-2xl space-y-6 border border-gray-100">
+                <div>
+                    <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">كم صرفت؟</label>
+                    <input type="number" id="input-amount" class="w-full bg-gray-50 p-5 rounded-2xl text-2xl font-bold text-center text-green-700 outline-none" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-500 mb-2 mr-2">في ماذا صرفت؟</label>
+                    <input type="text" id="input-title" class="w-full bg-gray-50 p-4 rounded-2xl outline-none font-bold" placeholder="مثلاً: قهوة..">
+                </div>
                 <div class="grid grid-cols-2 gap-3">
                     <button onclick="setCategory('need', this)" class="cat-btn border-2 border-green-500 bg-green-50 p-3 rounded-2xl font-bold text-green-700">احتياج</button>
                     <button onclick="setCategory('want', this)" class="cat-btn border-2 border-transparent bg-gray-50 p-3 rounded-2xl font-bold text-gray-500">رغبة</button>
                 </div>
-                <button id="save-btn" onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg">تأكيد ✅</button>
+                <div class="space-y-4 bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                    <div class="flex items-center justify-between text-sm font-bold">
+                        <span>دعم منتج محلي؟ 🇸🇦</span>
+                        <input type="checkbox" id="check-local" class="w-6 h-6 accent-green-600">
+                    </div>
+                    <div class="flex items-center justify-between text-sm font-bold">
+                        <span>خيار مستدام؟ 🌱</span>
+                        <input type="checkbox" id="check-eco" class="w-6 h-6 accent-green-600">
+                    </div>
+                </div>
+                <button onclick="processTransaction()" class="w-full bg-green-600 text-white py-5 rounded-2xl font-black text-xl shadow-lg active:scale-95 transition-transform">رصد الأثر وتأكيد ✅</button>
             </div>
         </div>
     </div>
 
     <div id="page-reports" class="page">
-        <div class="p-6">
+        <div class="p-6 space-y-6">
             <h2 class="text-3xl font-black text-gray-800 mb-6">التقارير الذكية</h2>
-            <div class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
+            <div id="suggestion-box" class="bg-yellow-50 p-5 rounded-[25px] border border-yellow-200">
                 <h4 class="font-bold text-yellow-800 text-sm mb-1">💡 الاقتراح الذكي:</h4>
-                <p class="text-xs text-yellow-700 font-bold leading-relaxed">نقاطك الحالية تعكس وعيك المالي المتزايد!</p>
+                <p id="suggestion-text" class="text-xs text-yellow-700 leading-relaxed font-bold">ابدأ بإدخال مصروفاتك لنقوم بتحليلها وتقديم بدائل أوفر لك!</p>
             </div>
-            <div id="financial-report" class="mt-6 bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-blue-500">
+            <div class="bg-white p-5 rounded-[30px] shadow-sm border border-gray-100">
+                <h4 class="font-bold text-gray-800 text-sm mb-4">🏆 تحديات الأسبوع:</h4>
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
+                        <input type="checkbox" class="w-4 h-4 accent-green-600">
+                        <span class="text-[11px] font-bold text-gray-600">أسبوع بدون صرف كمالي (رغبات)</span>
+                    </div>
+                    <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl">
+                        <input type="checkbox" class="w-4 h-4 accent-green-600" checked>
+                        <span class="text-[11px] font-bold text-gray-600">ادعم منتج محلي مرة واحدة 🇸🇦</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-blue-500">
                 <h4 class="font-bold text-blue-800 text-xs mb-1 uppercase">الأثر المالي</h4>
-                <p class="text-xs text-gray-500 font-bold leading-relaxed italic">قيد التحليل بناءً على بياناتك..</p>
+                <p id="report-fin-text" class="text-xs text-gray-500 font-bold italic leading-relaxed">قيد الجمع..</p>
+            </div>
+            <div class="bg-white p-6 rounded-[30px] shadow-sm border-r-8 border-green-500">
+                <h4 class="font-bold text-green-800 text-xs mb-1 uppercase">الأثر الاجتماعي والبيئي</h4>
+                <p id="report-soc-text" class="text-xs text-gray-500 font-bold italic leading-relaxed tracking-tight">قيد الجمع..</p>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white h-24 flex justify-around items-center px-6 border-t z-50">
-        <button onclick="navTo('home', this)" class="nav-btn nav-active flex flex-col items-center">
-            <span class="text-xl">🏠</span>
-            <span class="text-[10px] font-bold">الرئيسية</span>
+    <div class="fixed bottom-0 left-0 right-0 glass h-24 flex justify-around items-center px-6 border-t border-gray-100 shadow-2xl z-50">
+        <button onclick="navTo('home', this)" class="nav-btn text-green-600 flex flex-col items-center">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+            <span class="text-[10px] font-bold mt-1">الرئيسية</span>
         </button>
         <button onclick="navTo('add', this)" class="nav-btn text-gray-400 flex flex-col items-center">
-            <div class="bg-green-600 text-white p-3 rounded-2xl -mt-10 shadow-lg">➕</div>
+            <div class="bg-green-600 text-white p-4 rounded-2xl -mt-14 shadow-lg border-4 border-white transition-transform active:scale-90">
+                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+            </div>
             <span class="text-[10px] font-bold mt-1">إضافة</span>
         </button>
         <button onclick="navTo('reports', this)" class="nav-btn text-gray-400 flex flex-col items-center">
-            <span class="text-xl">📊</span>
-            <span class="text-[10px] font-bold">التقارير</span>
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+            <span class="text-[10px] font-bold mt-1 text-center leading-none">التقارير</span>
         </button>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
+    <script>
+        // --- إعدادات مشروع Athar-Pro من صورتك المرفقة ---
         const firebaseConfig = {
-            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3Lhjm_eRg8SX_iUw",
+            apiKey: "AIzaSyCMP7Xx0YMTI9SiETE3lHjm_eRg8SX_iUw",
             authDomain: "athar-pro.firebaseapp.com",
             projectId: "athar-pro",
             storageBucket: "athar-pro.firebasestorage.app",
             messagingSenderId: "958994453336",
-            appId: "1:958994453336:web:d4488297a848930285cb2d"
+            appId: "1:958994453336:web:d4488297a848930285cb2d",
+            measurementId: "G-R9JJB10JRK"
         };
+        
+        // تشغيل Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        let total = 0;
+        let points = 0;
         let selectedCategory = 'need';
 
-        window.navTo = (p, b) => {
-            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
-            document.getElementById('page-'+p).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('nav-active'));
-            if(b) b.classList.add('nav-active');
+        // تحميل البيانات تلقائياً عند فتح الصفحة
+        window.onload = function() {
+            loadFromCloud();
         };
 
-        window.setCategory = (c, b) => {
-            selectedCategory = c;
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('border-green-500', 'bg-green-50', 'text-green-700'));
-            b.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
-        };
+        function loadFromCloud() {
+            db.collection("transactions").orderBy("timestamp", "desc").onSnapshot((snapshot) => {
+                const list = document.getElementById('transactions-list');
+                list.innerHTML = '';
+                total = 0;
+                points = 0;
 
-        window.processTransaction = async () => {
-            const amount = document.getElementById('input-amount').value;
-            const title = document.getElementById('input-title').value;
-            const btn = document.getElementById('save-btn');
-            if(!amount || !title) return alert("الرجاء إدخال كافة البيانات");
+                if (snapshot.empty) {
+                    list.innerHTML = '<div class="text-center py-10 text-gray-400 text-sm">لا يوجد بيانات بعد..</div>';
+                    updateUI();
+                    return;
+                }
 
-            btn.innerText = "جاري الحفظ...";
-            btn.disabled = true;
-            await addDoc(collection(db, "transactions"), {
-                amount: parseFloat(amount),
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    total += data.amount;
+                    
+                    // حساب النقاط
+                    let earned = (data.category === 'need' && (data.isLocal || data.isEco)) ? 10 : (data.category === 'want' ? 0 : 5);
+                    points += earned;
+
+                    const card = document.createElement('div');
+                    card.className = "bg-white p-5 rounded-3xl shadow-sm flex justify-between items-center border border-gray-50";
+                    card.innerHTML = `
+                        <div class="flex items-center gap-4">
+                            <div class="bg-green-100 p-3 rounded-2xl text-xl">${data.isEco ? '🌱' : '💰'}</div>
+                            <div>
+                                <h4 class="font-black text-gray-800 text-sm">${data.title}</h4>
+                                <p class="text-[10px] text-gray-400 font-bold italic">${data.category === 'need' ? 'احتياج' : 'رغبة'} ${data.isLocal ? '• 🇸🇦 محلي' : ''}</p>
+                            </div>
+                        </div>
+                        <div class="text-left font-black text-green-700 text-sm">${data.amount} ريال</div>
+                    `;
+                    list.appendChild(card);
+                });
+                updateUI();
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('home-total').innerText = total.toLocaleString();
+            document.getElementById('user-points').innerText = points;
+        }
+
+        function navTo(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const activePage = document.getElementById('page-' + pageId);
+            if(activePage) activePage.classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-green-600', 'text-gray-400'));
+            if(btn) btn.classList.replace('text-gray-400', 'text-green-600');
+        }
+
+        function setCategory(cat, btn) {
+            selectedCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => {
+                b.classList.remove('border-green-500', 'bg-green-50', 'text-green-700');
+                b.classList.add('border-transparent', 'bg-gray-50', 'text-gray-500');
+            });
+            btn.classList.replace('border-transparent', 'border-green-500');
+            btn.classList.replace('bg-gray-50', 'bg-green-50');
+            btn.classList.replace('text-gray-500', 'text-green-700');
+        }
+
+        // الربط السحابي لعملية الإضافة
+        function processTransaction() {
+            const amountInput = document.getElementById('input-amount');
+            const titleInput = document.getElementById('input-title');
+            const amount = parseFloat(amountInput.value);
+            const title = titleInput.value;
+            const isLocal = document.getElementById('check-local').checked;
+            const isEco = document.getElementById('check-eco').checked;
+
+            if (!amount || !title) return alert("عبّي البيانات كاملة يا بطل! 😊");
+
+            // البيانات المطلوب حفظها سحابياً
+            const transactionData = {
+                amount: amount,
                 title: title,
                 category: selectedCategory,
-                timestamp: new Date()
-            });
-            location.reload();
-        };
+                isLocal: isLocal,
+                isEco: isEco,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
 
-        const loadData = async () => {
-            const snap = await getDocs(query(collection(db, "transactions"), orderBy("timestamp", "desc")));
-            let total = 0; let pts = 0;
-            const list = document.getElementById('transactions-list');
-            list.innerHTML = '';
-            snap.forEach(doc => {
-                const item = doc.data();
-                total += item.amount;
-                pts += (item.category === 'need' ? 10 : 2);
-                list.innerHTML += `<div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between mb-3"><span class="font-bold">${item.title}</span><span class="text-green-600 font-bold">${item.amount} ريال</span></div>`;
+            // الرفع للسحاب
+            db.collection("transactions").add(transactionData).then(() => {
+                // تنفيذ منطق الاقتراحات الذكية (كودك الأصلي)
+                const suggestBox = document.getElementById('suggestion-text');
+                if(title.includes("قهوة") || title.includes("كوفي")) {
+                    const saving = amount * 3 * 4;
+                    suggestBox.innerHTML = `قهوة يومية بـ ${amount} ريال؟ لو خففتها لـ 3 مرات بالأسبوع توفر <span class='text-orange-600 underline'>${saving} ريال بالشهر</span>! استثمرها في مستقبلك ☕`;
+                } else {
+                    suggestBox.innerText = "أداء رائع! دعمك للمنتج المحلي يرفع من نقاط أثرك الوطني. استمر!";
+                }
+
+                document.getElementById('report-fin-text').innerText = (selectedCategory === 'want') ? "لاحظنا زيادة في صرف الرغبات، حاول موازنة ميزانيتك غداً." : "صرف ممتاز وواعٍ يركز على احتياجاتك الأساسية.";
+                document.getElementById('report-soc-text').innerText = isLocal ? "دعمك للمنتج المحلي ينمي اقتصادنا الوطني 🇸🇦" : "فكر في دعم التاجر المحلي في قراراتك القادمة لرفع أثرك الاجتماعي.";
+                
+                document.getElementById('eco-status').innerText = isEco ? "🟢 مستدام" : "🟡 متوسط";
+                document.getElementById('social-status').innerText = isLocal ? "🟢 عالي" : "🟡 متوسط";
+
+                // تنظيف وإغلاق
+                amountInput.value = ''; titleInput.value = '';
+                document.getElementById('check-local').checked = false;
+                document.getElementById('check-eco').checked = false;
+                navTo('home', document.querySelectorAll('.nav-btn')[0]);
+                alert("تم رصد الأثر وحفظه سحابياً بنجاح! ✅");
+            }).catch((err) => {
+                alert("خطأ في الاتصال بالسحاب: " + err.message);
             });
-            document.getElementById('home-total').innerText = total;
-            document.getElementById('user-points').innerText = pts;
-        };
-        loadData();
+        }
     </script>
 </body>
 </html>
